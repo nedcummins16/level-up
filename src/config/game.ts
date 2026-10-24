@@ -1,0 +1,161 @@
+// ============================================================================
+//  LEVEL UP: GAME CONFIG
+//  XP values, levels, titles, unlockables, quests, raids and achievements.
+// ============================================================================
+
+export const XP = {
+  set: 10,
+  session: 100,
+  cardio: 60,
+  mobility: 20,
+  checkin: 50,
+  pr: 150,
+  dailyQuest: 10, // protein / steps / smoothie
+  recovery: 20, // rest day + mobility done
+  weeklyQuest: 25,
+  raidChest: 200,
+  achievement: 100,
+  boss: 500,
+  /** Gym/beach session XP only counts for this many sessions per week (no overtraining). */
+  strengthCapPerWeek: 4,
+}
+
+/** XP needed to go from level L to L+1. */
+export function xpToNext(level: number) {
+  return 150 + 75 * (level - 1)
+}
+
+export const TITLES = [
+  'Couch Rookie',
+  'Bench Warmer',
+  'Gym Goblin',
+  'Rep Recruit',
+  'Plate Pusher',
+  'Iron Apprentice',
+  'Sweat Squire',
+  'Barbell Bandit',
+  'Squat Scout',
+  'Protein Paladin',
+  'Deadlift Druid',
+  'Pull-up Pirate',
+  'Box Jump Bard',
+  'Hamstring Hero',
+  'Calf Commander',
+  'Sprint Sorcerer',
+  'Iron Knight',
+  'Hang Time Hunter',
+  'Glass Cleaner',
+  'Posterizer',
+  'Dunk Contender',
+  'Rim Rattler',
+]
+
+export function titleFor(level: number) {
+  return TITLES[Math.min(level, TITLES.length) - 1]
+}
+
+export interface Unlockable {
+  level: number
+  kind: 'theme' | 'cosmetic'
+  id: string
+  name: string
+  slot?: 'head' | 'arms' | 'shoes' | 'shirt' | 'hand' | 'back' | 'aura'
+}
+
+export const THEMES: { id: string; name: string; level: number }[] = [
+  { id: 'arcade', name: 'Arcade', level: 1 },
+  { id: 'lava', name: 'Lava', level: 3 },
+  { id: 'ocean', name: 'Ocean', level: 6 },
+  { id: 'forest', name: 'Forest', level: 9 },
+  { id: 'court', name: 'Court', level: 12 },
+  { id: 'synth', name: 'Synthwave', level: 15 },
+  { id: 'ice', name: 'Ice', level: 18 },
+  { id: 'gold', name: 'Champion Gold', level: 21 },
+]
+
+export const COSMETICS: Unlockable[] = [
+  { level: 2, kind: 'cosmetic', id: 'headband-red', name: 'Red headband', slot: 'head' },
+  { level: 4, kind: 'cosmetic', id: 'wristbands', name: 'Wristbands', slot: 'arms' },
+  { level: 5, kind: 'cosmetic', id: 'hightops', name: 'High-tops', slot: 'shoes' },
+  { level: 7, kind: 'cosmetic', id: 'jersey-blue', name: 'Blue jersey', slot: 'shirt' },
+  { level: 8, kind: 'cosmetic', id: 'basketball', name: 'Basketball', slot: 'hand' },
+  { level: 10, kind: 'cosmetic', id: 'cape', name: 'Hero cape', slot: 'back' },
+  { level: 11, kind: 'cosmetic', id: 'gold-shoes', name: 'Gold sneakers', slot: 'shoes' },
+  { level: 13, kind: 'cosmetic', id: 'jersey-red', name: 'Red jersey', slot: 'shirt' },
+  { level: 14, kind: 'cosmetic', id: 'headband-gold', name: 'Gold headband', slot: 'head' },
+  { level: 16, kind: 'cosmetic', id: 'aura-blue', name: 'Blue aura', slot: 'aura' },
+  { level: 17, kind: 'cosmetic', id: 'jersey-black', name: 'Black jersey', slot: 'shirt' },
+  { level: 19, kind: 'cosmetic', id: 'cap', name: 'Backwards cap', slot: 'head' },
+  { level: 20, kind: 'cosmetic', id: 'aura-gold', name: 'Gold aura', slot: 'aura' },
+  { level: 22, kind: 'cosmetic', id: 'crown', name: 'Rim Rattler crown', slot: 'head' },
+]
+
+export const UNLOCKABLES: Unlockable[] = [
+  ...THEMES.filter((t) => t.level > 1).map((t) => ({ level: t.level, kind: 'theme' as const, id: t.id, name: `${t.name} theme` })),
+  ...COSMETICS,
+].sort((a, b) => a.level - b.level)
+
+export const DAILY_QUESTS = [
+  { id: 'mobility', name: 'Mobility routine', emoji: '🧘' },
+  { id: 'protein', name: 'Protein 120 g+', emoji: '🥩' },
+  { id: 'steps', name: 'Steps 8k+', emoji: '👟' },
+  { id: 'smoothie', name: 'Smoothie', emoji: '🥤' },
+] as const
+
+export const WEEKLY_QUESTS = [
+  { id: 'target', name: 'Hit your weekly session target' },
+  { id: 'mobility6', name: 'Mobility on 6 of 7 days' },
+  { id: 'steps5', name: 'Steps 8k+ on 5 days' },
+  { id: 'weigh5', name: 'Weigh in on 5 days' },
+  { id: 'checkin', name: 'Sunday check-in' },
+] as const
+
+/** Weekly raids rotate by program week. Each opens a bonus chest. */
+export const RAIDS = [
+  { id: 'allPlanned', name: 'Full Clear', desc: 'Complete every planned session this week' },
+  { id: 'protein5', name: 'Protein Siege', desc: 'Protein 120 g+ on 5 of 7 days' },
+  { id: 'onePR', name: 'Record Breaker', desc: 'Set at least one PR' },
+  { id: 'mobility7', name: 'Bendy Dungeon', desc: 'Mobility all 7 days' },
+  { id: 'smoothie5', name: 'Smoothie Run', desc: 'Smoothie on 5 of 7 days' },
+  { id: 'steps6', name: 'Step Quest', desc: 'Steps 8k+ on 6 of 7 days' },
+  { id: 'allSets', name: 'No Set Left Behind', desc: 'Finish every set of every strength session' },
+] as const
+
+export const BEACH_RAID = { id: 'beachAll', name: 'Sand Dungeon', desc: 'Complete every beach session this week' } as const
+export const TEST_RAID = { id: 'bosses', name: 'Boss Rush', desc: 'Defeat both bosses this week' } as const
+
+export type RaidId = (typeof RAIDS)[number]['id'] | typeof BEACH_RAID.id | typeof TEST_RAID.id
+
+export const ACHIEVEMENTS = [
+  { id: 'firstSession', name: 'First Session', icon: '🎮', desc: 'Finish your first workout' },
+  { id: 'firstPR', name: 'First PR', icon: '📈', desc: 'Set your first personal record' },
+  { id: 'pullups5', name: '5 Pull-ups', icon: '🧗', desc: '5 strict pull-ups in one set' },
+  { id: 'pullups10', name: '10 Pull-ups', icon: '🦍', desc: '10 strict pull-ups in one set' },
+  { id: 'pushups30', name: '30 Push-ups', icon: '💪', desc: '30 push-ups in one set' },
+  { id: 'bwBench', name: 'Bodyweight Bench', icon: '🏋️', desc: 'Bench your bodyweight' },
+  { id: 'toes', name: 'Touch Your Toes', icon: '🦶', desc: 'Toe-touch test at 0 cm or better' },
+  { id: 'club60', name: '60 kg Club', icon: '🥈', desc: '7-day average weight 60 kg+' },
+  { id: 'club62', name: '62 kg Club', icon: '🥇', desc: '7-day average weight 62 kg+' },
+  { id: 'ironWeek', name: 'Iron Week', icon: '🛡️', desc: 'All 6 planned sessions in one week' },
+  { id: 'beachSurvivor', name: 'Beach Survivor', icon: '🏝️', desc: 'All 6 beach sessions' },
+  { id: 'neverTwice', name: 'Never Missed Twice', icon: '🔁', desc: '4 weeks in a row without missing two planned days back to back' },
+  { id: 'dunk', name: 'Dunk', icon: '🏀', desc: 'Throw one down! (unlock it yourself)' },
+] as const
+
+export type AchievementId = (typeof ACHIEVEMENTS)[number]['id']
+
+/** Streak freezes: earn 1 per 3 complete weeks, store max 2. */
+export const FREEZE = { everyWeeks: 3, max: 2 }
+
+// RPG stat formulas (0-99). Tweak to taste.
+export const STATS = {
+  /** STR from (squat + bench + deadlift + pull-up e1RM) / bodyweight. */
+  strRatio: { zero: 1.5, full: 8 },
+  /** END: cardio minutes (up to 50 pts) + 5 km time (35:00 = 0 → 20:00 = 49). */
+  endMinutesFor50: 1000,
+  endFiveK: { slowSec: 35 * 60, fastSec: 20 * 60 },
+  /** MOB: toe-touch cm (−20 → 0 pts, +15 → 70) + mobility streak (up to 29). */
+  mobToe: { min: -20, max: 15 },
+  /** JMP: jump reach cm (20 → 0, 75 → 99). */
+  jmp: { min: 20, max: 75 },
+}

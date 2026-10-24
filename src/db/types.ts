@@ -54,6 +54,12 @@ export interface LoggedExercise {
   rest: number
   targetSets: number
   suggested: number | null
+  /** Progression hint shown with the suggestion. */
+  hint?: string
+  /** Effort target per set, e.g. ["RIR 2", "RIR 2", "RIR 1"]. */
+  rirTargets?: string[]
+  perSide?: boolean
+  rampUp?: boolean
   sets: LoggedSet[]
 }
 
