@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react'
 import { latestWeight } from '../lib/body'
+import { computeGame, type GameState } from '../lib/game'
 import { mondayOf, type ISODate } from '../lib/dates'
 import type { PlanSettings } from '../lib/plan'
 import { planWeek, type DayPlan, type WeekPlan } from '../lib/schedule'
@@ -19,19 +20,22 @@ export interface AppCtxValue {
   planFor: (weekStart: ISODate) => WeekPlan
   tab: Tab
   go: (t: Tab) => void
+  game: GameState
 }
 
 const Ctx = createContext<AppCtxValue | null>(null)
 
 export function AppProvider({ data, today, tab, go, children }: { data: AppData; today: ISODate; tab: Tab; go: (t: Tab) => void; children: ReactNode }) {
-  const value = useMemo<AppCtxValue>(() => {
+  const core = useMemo(() => {
     const s = data.settings
     const planSettings: PlanSettings = { trainingDays: s.trainingDays, tennisOff: s.tennisOff, christmasMove: s.christmasMove, repeats: s.repeats }
     const planFor = (weekStart: ISODate) => planWeek(weekStart, { today, settings: planSettings, sessions: data.sessions, life: data.life })
     const week = planFor(mondayOf(today))
     const todayPlan = week.days.find((d) => d.date === today)!
     const bodyweight = latestWeight(data.daily, today)
+    const game = computeGame({ settings: s, sessions: data.sessions, daily: data.daily, checkins: data.checkins, tests: data.tests, life: data.life, today, planFor })
     return {
+      game,
       data,
       today,
       week,
@@ -39,11 +43,10 @@ export function AppProvider({ data, today, tab, go, children }: { data: AppData;
       planSettings,
       bodyweight,
       planFor,
-      sessionCtx: (date) => ({ date, settings: s, sessions: data.sessions, life: data.life, bodyweight }),
-      tab,
-      go,
+      sessionCtx: (date: ISODate): SessionCtx => ({ date, settings: s, sessions: data.sessions, life: data.life, bodyweight }),
     }
-  }, [data, today, tab, go])
+  }, [data, today])
+  const value = useMemo<AppCtxValue>(() => ({ ...core, tab, go }), [core, tab, go])
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }
 

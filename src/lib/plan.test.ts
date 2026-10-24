@@ -46,8 +46,6 @@ describe('program calendar', () => {
   it('follows the weekly template with odd/even cardio', () => {
     expect(slots('2026-11-16')).toEqual(['test', 'LA'])
     expect(slots('2026-11-17')).toEqual(['UA'])
-    const w1wed = basePlan('2026-11-18', S).find((i) => i.slot === 'cardio')!
-    expect(w1wed.mode).toBe('run')
     expect(basePlan('2026-11-25', S).find((i) => i.slot === 'cardio')!.mode).toBe('swim')
     expect(slots('2026-11-19')).toEqual(['LB'])
     expect(slots('2026-11-20')).toEqual(['UB'])
@@ -85,7 +83,9 @@ describe('program calendar', () => {
   })
 
   it('has test days and test week', () => {
-    expect(slots('2026-12-23')).toEqual(['test', 'cardio'])
+    expect(slots('2026-12-23')).toEqual(['test'])
+    expect(basePlan('2026-12-23', S)[0].counts).toBe(true)
+    expect(slots('2026-11-18')).toEqual(['test'])
     expect(slots('2027-02-08')).toEqual(['test'])
     expect(slots('2027-02-09')).toEqual(['rest'])
     expect(slots('2027-02-10')).toEqual(['test'])

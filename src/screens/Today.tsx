@@ -52,7 +52,7 @@ export function Today() {
         </Panel>
       )}
 
-      {todayPlan.items.map((item, i) => {
+      {[...todayPlan.items].sort((a, b) => Number(b.kind === 'test') - Number(a.kind === 'test')).map((item, i) => {
         if (item.kind === 'strength') return <StrengthCard key={i} item={item} date={today} />
         if (item.kind === 'test') return <BossCard key={i} testId={item.testId!} />
         if (item.kind === 'rest')

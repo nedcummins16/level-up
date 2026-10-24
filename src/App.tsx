@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { GameWatcher } from './components/GameWatcher'
 import { RestTimerBar } from './components/RestTimer'
 import { getSettings, updateSettings } from './db/db'
 import { fmtDate } from './lib/dates'
@@ -87,6 +88,7 @@ function Shell() {
       {tab === 'progress' && <Progress />}
       {tab === 'settings' && <Settings />}
       <RestTimerBar />
+      <GameWatcher />
       <nav className="fixed bottom-0 left-0 right-0 z-40 bg-bg-2 border-t-4 border-edge pb-safe">
         <div className="max-w-xl mx-auto grid grid-cols-5">
           {TABS.map((t) => (

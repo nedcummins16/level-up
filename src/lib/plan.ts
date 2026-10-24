@@ -161,7 +161,10 @@ export function basePlan(d: ISODate, s: PlanSettings): PlanItem[] {
     return items
   }
 
-  if (wd === PROGRAM.cardioDay) {
+  // A 5 km test on a cardio day IS the cardio session.
+  const fiveKTest = test && test.items.includes('fiveK') && wd === PROGRAM.cardioDay
+  if (fiveKTest) items[0] = { ...items[0], counts: true, label: `${items[0].label} (5 km run)` }
+  if (wd === PROGRAM.cardioDay && !fiveKTest) {
     const odd = weekNumber(d) % 2 === 1
     const c = odd ? CARDIO.odd : CARDIO.even
     items.push({ kind: 'cardio', slot: 'cardio', label: `${c.label} ${CARDIO.minutes[0]}-${CARDIO.minutes[1]} min`, counts: true, minutes: CARDIO.minutes, mode: c.mode as 'run' | 'swim' })
