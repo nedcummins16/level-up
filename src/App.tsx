@@ -9,6 +9,7 @@ import { useAppData, useToday } from './state/data'
 import { FxProvider } from './state/fx'
 import { TimerProvider } from './state/timer'
 import { Home } from './screens/Home'
+import { InstallGate } from './screens/Install'
 import { Progress } from './screens/Progress'
 import { Settings } from './screens/Settings'
 import { Today } from './screens/Today'
@@ -64,13 +65,15 @@ export default function App() {
   }
 
   return (
-    <TimerProvider>
-      <FxProvider>
-        <AppProvider data={data} today={today} tab={tab} go={go}>
-          <Shell />
-        </AppProvider>
-      </FxProvider>
-    </TimerProvider>
+    <InstallGate>
+      <TimerProvider>
+        <FxProvider>
+          <AppProvider data={data} today={today} tab={tab} go={go}>
+            <Shell />
+          </AppProvider>
+        </FxProvider>
+      </TimerProvider>
+    </InstallGate>
   )
 }
 

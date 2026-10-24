@@ -9,6 +9,9 @@ const BASE = '/level-up/'
 // https://vite.dev/config/
 export default defineConfig({
   base: BASE,
+  define: {
+    __APP_VERSION__: JSON.stringify(new Date().toISOString().slice(0, 16).replace('T', ' ')),
+  },
   plugins: [react(), tailwindcss()],
   test: {
     environment: 'node',
