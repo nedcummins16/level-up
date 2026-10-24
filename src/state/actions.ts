@@ -1,5 +1,5 @@
 import type { CardioSlot, StrengthSlot } from '../config/types'
-import { db, getSettings, updateSettings } from '../db/db'
+import { db, updateSettings } from '../db/db'
 import type { DailyLog, LifeEvent, LifeType, WorkoutSession } from '../db/types'
 import { addDays, type ISODate } from '../lib/dates'
 import { makeLifeEvent } from '../lib/life'
@@ -65,9 +65,10 @@ export async function endOngoing(id: number, today: ISODate) {
 }
 
 export async function toggleTennis(weekStart: ISODate, on: boolean) {
-  const s = await getSettings()
-  const off = new Set(s.tennisOff)
-  if (on) off.delete(weekStart)
-  else off.add(weekStart)
-  await updateSettings({ tennisOff: [...off].sort() })
+  await updateSettings((s) => {
+    const off = new Set(s.tennisOff)
+    if (on) off.delete(weekStart)
+    else off.add(weekStart)
+    return { tennisOff: [...off].sort() }
+  })
 }

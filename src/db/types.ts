@@ -33,6 +33,19 @@ export interface Settings {
   openedChests: ISODate[]
   seenResults: ISODate[]
   heroName: string
+  /** Default session start time per weekday "1".."7" → "HH:MM". */
+  defaultTimes: Record<string, string>
+  /** Default place per kind of session. */
+  places: { gym: string; cardio: string; tennis: string; beach: string }
+  /** Weeks where you said "no thanks" to the light-week suggestion. */
+  lightDismissed: ISODate[]
+}
+
+/** When and where you'll train on a date (implementation intention). */
+export interface Appointment {
+  date: ISODate
+  time: string // "HH:MM"
+  place: string
 }
 
 export interface LoggedSet {
@@ -118,6 +131,10 @@ export interface DailyLog {
   protein?: boolean | null
   steps?: boolean | null
   smoothie?: boolean | null
+  /** Meals/snacks ticked off today (ids from FOOD.slots). */
+  meals?: string[]
+  /** Gym bag packed (stored on the day you'll train). */
+  bag?: boolean
 }
 
 export interface CheckIn {

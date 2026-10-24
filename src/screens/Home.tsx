@@ -2,12 +2,13 @@ import { useState } from 'react'
 import { Character, StreakFlame } from '../components/Character'
 import { DailyQuests } from '../components/DailyQuests'
 import { RaidCard } from '../components/RaidCard'
-import { Badge, Bar, Btn, H, NumField, Panel, Sheet } from '../components/ui'
+import { TimePlace } from '../components/Appointments'
+import { Badge, Bar, Btn, Check, H, NumField, Panel, Sheet } from '../components/ui'
 import { ACHIEVEMENTS, FREEZE, TITLES, xpToNext } from '../config/game'
 import { updateSettings } from '../db/db'
 import { PROGRAM } from '../config/program'
 import { avg7 } from '../lib/body'
-import { fmtDate, fmtDay } from '../lib/dates'
+import { addDays, fmtDate, fmtDay, mondayOf } from '../lib/dates'
 import { getPhase, weekNumber } from '../lib/plan'
 import { patchDaily } from '../state/actions'
 import { useApp } from '../state/app'
@@ -95,6 +96,7 @@ export function Home() {
         </Btn>
       </Panel>
 
+      <Tomorrow />
       <DailyQuests />
       <WeighIn />
       <RaidCard />
@@ -187,6 +189,28 @@ function Trophies() {
       <p className="text-xs text-muted">Total PRs: {game.prs.length} · Best streak: {game.bestStreak} weeks</p>
       <p className="text-xs text-muted">Tracking since {fmtDate(new Date(data.settings.createdAt).toISOString().slice(0, 10))}</p>
     </div>
+  )
+}
+
+function Tomorrow() {
+  const { data, today, planFor } = useApp()
+  const tomorrow = addDays(today, 1)
+  const day = planFor(mondayOf(tomorrow)).days.find((d) => d.date === tomorrow)
+  const items = day?.items.filter((i) => i.counts || i.kind === 'test') ?? []
+  if (!items.length) return null
+  const log = data.daily.find((d) => d.date === tomorrow)
+  const needsBag = items.some((i) => i.kind !== 'tennis')
+  return (
+    <Panel>
+      <div className="font-pixel text-[9px] text-muted">TOMORROW · {fmtDay(tomorrow).toUpperCase()}</div>
+      <div className="mt-1">{items.map((i) => i.label).join(' + ')}</div>
+      <TimePlace date={tomorrow} items={items} />
+      {needsBag && (
+        <Check on={!!log?.bag} onChange={(on) => void patchDaily(tomorrow, { bag: on })}>
+          🎒 Bag packed (shoes, towel, water, headphones)
+        </Check>
+      )}
+    </Panel>
   )
 }
 

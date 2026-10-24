@@ -31,7 +31,7 @@ async function dataURLToBlob(url: string): Promise<Blob> {
 }
 
 export async function buildBackup(): Promise<BackupFile> {
-  const [settings, sessions, life, daily, checkins, tests, measurements, photos] = await Promise.all([
+  const [settings, sessions, life, daily, checkins, tests, measurements, photos, appointments] = await Promise.all([
     db.settings.toArray(),
     db.sessions.toArray(),
     db.life.toArray(),
@@ -40,6 +40,7 @@ export async function buildBackup(): Promise<BackupFile> {
     db.tests.toArray(),
     db.measurements.toArray(),
     db.photos.toArray(),
+    db.appointments.toArray(),
   ])
   const photoRows = await Promise.all(photos.map(async (p) => ({ ...p, blob: await blobToDataURL(p.blob) })))
   return {
@@ -47,7 +48,7 @@ export async function buildBackup(): Promise<BackupFile> {
     version: BACKUP_VERSION,
     exportedAt: new Date().toISOString(),
     schema: db.verno,
-    tables: { settings, sessions, life, daily, checkins, tests, measurements, photos: photoRows },
+    tables: { settings, sessions, life, daily, checkins, tests, measurements, photos: photoRows, appointments },
   }
 }
 
@@ -91,8 +92,8 @@ export async function restoreBackup(data: BackupFile) {
   const photos = await Promise.all(
     ((t.photos ?? []) as (Omit<Photo, 'blob'> & { blob: string })[]).map(async (p) => ({ ...p, blob: await dataURLToBlob(p.blob) })),
   )
-  await db.transaction('rw', [db.settings, db.sessions, db.life, db.daily, db.checkins, db.tests, db.measurements, db.photos], async () => {
-    await Promise.all([db.settings.clear(), db.sessions.clear(), db.life.clear(), db.daily.clear(), db.checkins.clear(), db.tests.clear(), db.measurements.clear(), db.photos.clear()])
+  await db.transaction('rw', [db.settings, db.sessions, db.life, db.daily, db.checkins, db.tests, db.measurements, db.photos, db.appointments], async () => {
+    await Promise.all([db.settings.clear(), db.sessions.clear(), db.life.clear(), db.daily.clear(), db.checkins.clear(), db.tests.clear(), db.measurements.clear(), db.photos.clear(), db.appointments.clear()])
     await db.settings.bulkPut((t.settings ?? []) as never[])
     await db.sessions.bulkPut((t.sessions ?? []) as never[])
     await db.life.bulkPut((t.life ?? []) as never[])
@@ -101,12 +102,13 @@ export async function restoreBackup(data: BackupFile) {
     await db.tests.bulkPut((t.tests ?? []) as never[])
     await db.measurements.bulkPut((t.measurements ?? []) as never[])
     await db.photos.bulkPut(photos as never[])
+    await db.appointments.bulkPut((t.appointments ?? []) as never[])
   })
 }
 
 export async function resetAll() {
-  await db.transaction('rw', [db.settings, db.sessions, db.life, db.daily, db.checkins, db.tests, db.measurements, db.photos], async () => {
-    await Promise.all([db.settings.clear(), db.sessions.clear(), db.life.clear(), db.daily.clear(), db.checkins.clear(), db.tests.clear(), db.measurements.clear(), db.photos.clear()])
+  await db.transaction('rw', [db.settings, db.sessions, db.life, db.daily, db.checkins, db.tests, db.measurements, db.photos, db.appointments], async () => {
+    await Promise.all([db.settings.clear(), db.sessions.clear(), db.life.clear(), db.daily.clear(), db.checkins.clear(), db.tests.clear(), db.measurements.clear(), db.photos.clear(), db.appointments.clear()])
   })
   try {
     localStorage.removeItem('levelup.timer')

@@ -10,7 +10,7 @@ export const XP = {
   mobility: 20,
   checkin: 50,
   pr: 150,
-  dailyQuest: 10, // protein / steps / smoothie
+  dailyQuest: 10, // protein / steps / smoothie / 5 meals
   recovery: 20, // rest day + mobility done
   weeklyQuest: 25,
   raidChest: 200,
@@ -103,6 +103,7 @@ export const DAILY_QUESTS = [
   { id: 'protein', name: 'Protein 120 g+', emoji: '🥩' },
   { id: 'steps', name: 'Steps 8k+', emoji: '👟' },
   { id: 'smoothie', name: 'Smoothie', emoji: '🥤' },
+  { id: 'meals', name: 'Eat 5 times (3 meals + 2 snacks)', emoji: '🍽️' },
 ] as const
 
 export const WEEKLY_QUESTS = [
@@ -120,6 +121,7 @@ export const RAIDS = [
   { id: 'onePR', name: 'Record Breaker', desc: 'Set at least one PR' },
   { id: 'mobility7', name: 'Bendy Dungeon', desc: 'Mobility all 7 days' },
   { id: 'smoothie5', name: 'Smoothie Run', desc: 'Smoothie on 5 of 7 days' },
+  { id: 'meals5', name: 'Feast Mode', desc: 'Eat 5 times a day on 5 of 7 days' },
   { id: 'steps6', name: 'Step Quest', desc: 'Steps 8k+ on 6 of 7 days' },
   { id: 'allSets', name: 'No Set Left Behind', desc: 'Finish every set of every strength session' },
 ] as const
@@ -146,6 +148,43 @@ export const ACHIEVEMENTS = [
 ] as const
 
 export type AchievementId = (typeof ACHIEVEMENTS)[number]['id']
+
+/**
+ * Comeback quest: the first session after a missed GYM day earns a bonus (once a week).
+ * Quitting usually happens right after one miss, so coming back is the moment to reward.
+ * It's smaller than what a skipped session is worth, so skipping on purpose never pays.
+ */
+export const COMEBACK = { bonus: 50, lookbackDays: 7 }
+
+/** Bulking made simple: tick off 5 eating moments a day. Edit the ideas freely. */
+export const FOOD = {
+  slots: [
+    { id: 'breakfast', name: 'Brekky', emoji: '🍳' },
+    { id: 'lunch', name: 'Lunch', emoji: '🥪' },
+    { id: 'dinner', name: 'Dinner', emoji: '🍝' },
+    { id: 'snack1', name: 'Snack', emoji: '🍌' },
+    { id: 'snack2', name: 'Snack', emoji: '🥜' },
+  ],
+  ideas: [
+    { name: 'Bulk smoothie', kcal: 800, protein: 40, what: '400 ml milk, banana, 50 g oats, 2 tbsp peanut butter, 1 scoop whey' },
+    { name: 'Spag bol + cheese', kcal: 800, protein: 40, what: 'Big bowl of pasta, beef mince sauce, grated cheese' },
+    { name: 'Mince & rice bowl', kcal: 750, protein: 40, what: 'Rice, beef mince, frozen veg, drizzle of olive oil' },
+    { name: 'Chicken wraps ×2', kcal: 650, protein: 45, what: 'Wraps, chicken, cheese, avocado, salad' },
+    { name: 'Toasties ×2', kcal: 600, protein: 30, what: 'Ham & cheese toasted sandwiches + a glass of milk' },
+    { name: 'Eggs on toast', kcal: 600, protein: 30, what: '3 eggs, 2 slices toast with butter, avocado' },
+    { name: 'Tuna pasta', kcal: 700, protein: 40, what: 'Pasta, tin of tuna, cheese, sweetcorn, mayo' },
+    { name: 'Yoghurt bowl', kcal: 450, protein: 25, what: 'Greek yoghurt, muesli, honey, berries' },
+    { name: 'Trail mix + milk', kcal: 450, protein: 18, what: 'Big handful nuts & dried fruit + 300 ml milk' },
+    { name: 'PB banana toast', kcal: 400, protein: 14, what: '2 toast, peanut butter, sliced banana' },
+  ],
+  tips: [
+    'Drink milk with meals instead of water: easy 150+ kcal.',
+    'Add olive oil, cheese or peanut butter to meals you already eat.',
+    'Eat before bed: yoghurt, milk or a toastie.',
+    'Never skip breakfast: even a smoothie on the way counts.',
+    'Struggling to gain? The app tells you after 2 slow weeks: add ~250 kcal (1 snack).',
+  ],
+}
 
 /** Streak freezes: earn 1 per 3 complete weeks, store max 2. */
 export const FREEZE = { everyWeeks: 3, max: 2 }

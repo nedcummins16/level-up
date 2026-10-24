@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { AddToCalendar, saveDraft, TimePlace, useCalendarExport, useWeekDraft, WeekPlanner } from '../components/Appointments'
 import { RaidCard } from '../components/RaidCard'
 import { Badge, Btn, H, NumField, Panel, Sheet, Stars, Toggle } from '../components/ui'
 import { XP } from '../config/game'
@@ -95,6 +96,7 @@ export function Week() {
                     </div>
                   )
                 })}
+                {d.date >= today && <TimePlace date={d.date} items={d.items} />}
                 {d.dropped.map((x, k) => (
                   <div key={`d${k}`} className="text-xs text-muted line-through">
                     {x.item.label}
@@ -105,6 +107,11 @@ export function Week() {
           </div>
         ))}
         {plan.unfit.length > 0 && <div className="text-sm text-muted mt-2">Couldn't fit this week: {plan.unfit.join(', ')}. Fresh start Monday!</div>}
+        {end >= today && plan.planned > 0 && (
+          <div className="mt-2">
+            <AddToCalendar weekStarts={[ws]} label="Add this week to Calendar" name={`level-up-week-${weekNumber(ws)}`} />
+          </div>
+        )}
         {hasSat && end >= today && <Toggle on={tennisOn} onChange={(on) => void toggleTennis(ws, on)} label={<span className="text-sm">🎾 Tennis on this week (else intervals)</span>} />}
       </Panel>
 
@@ -207,8 +214,15 @@ function CheckInForm({ weekStart, onDone }: { weekStart: ISODate; onDone: () => 
   const [notes, setNotes] = useState('')
   const [backedUp, setBackedUp] = useState(false)
   const last = data.settings.lastBackupAt
+  const next = addDays(weekStart, 7)
+  const { draft, setDraft } = useWeekDraft(next)
+  const [addCal, setAddCal] = useState(true)
+  const exportCal = useCalendarExport()
 
   const save = async () => {
+    // Share sheet first: iOS only allows it straight after a tap.
+    if (addCal && draft.length) void exportCal([next], draft, `level-up-week-${weekNumber(next)}`)
+    await saveDraft(draft)
     await db.checkins.put({
       weekStart,
       date: today,
@@ -252,6 +266,15 @@ function CheckInForm({ weekStart, onDone }: { weekStart: ISODate; onDone: () => 
         <span className="block text-sm text-muted mb-1">Notes</span>
         <textarea className="px-input !min-h-[90px] py-2" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Wins, niggles, what to change…" />
       </label>
+
+      {draft.length > 0 && (
+        <div className="bg-bg-2 border-[3px] border-accent p-3 mb-4">
+          <div className="font-pixel text-[10px] text-accent mb-1">🗓️ PLAN NEXT WEEK</div>
+          <p className="text-sm text-muted mb-1">When and where will you train? People who decide this in advance turn up way more often.</p>
+          <WeekPlanner draft={draft} setDraft={setDraft} />
+          <Toggle on={addCal} onChange={setAddCal} label={<span className="text-sm">Add to my Calendar with reminders (8pm the night before + 1 hour before)</span>} />
+        </div>
+      )}
 
       <div className="bg-bg-2 border-[3px] border-xp p-3 mb-4">
         <div className="font-pixel text-[10px] text-xp mb-1">💾 BACKUP REMINDER</div>

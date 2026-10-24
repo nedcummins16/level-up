@@ -6,7 +6,7 @@ import type { LoggedExercise, LoggedSet, WorkoutSession } from '../db/types'
 import { fmtShort } from '../lib/dates'
 import { dayMods } from '../lib/life'
 import { BODYWEIGHT_LIKE } from '../lib/progression'
-import { bestFor, isPR } from '../lib/records'
+import { bestFor, isPR, prText } from '../lib/records'
 import { defaultReps, exerciseLogs, exInfo, planExercise, repsLabel, restLabel, toLogged, warmupSteps } from '../lib/session'
 import { sfx, unlockAudio } from '../lib/sound'
 import { useWakeLock } from '../lib/wakeLock'
@@ -96,7 +96,7 @@ export function ActiveSession({ session }: { session: WorkoutSession }) {
     const best = bestFor(app.data.sessions.filter((x) => x.status === 'done'), e.ex, e.equipment, s.id)
     const earlierPR = e.sets.some((x, j) => j !== si && x.done && isPR(best, x, e.equipment))
     if (!earlierPR && isPR(best, doneSet, e.equipment)) {
-      const what = e.equipment === 'assisted' ? `${reps} reps @ ${weight} kg assist` : weight ? `${weight} kg x ${reps}` : `${reps} reps`
+      const what = prText({ weight, reps, equipment: e.equipment })
       fx.celebrate({ kind: 'pr', title: e.name, sub: what, icon: '🏆', xp: XP.pr })
     }
 

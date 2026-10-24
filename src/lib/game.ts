@@ -3,6 +3,8 @@
 
 import {
   ACHIEVEMENTS,
+  COMEBACK,
+  FOOD,
   BEACH_RAID,
   FREEZE,
   RAIDS,
@@ -43,7 +45,7 @@ export interface XpEntry {
   date: ISODate
   amount: number
   reason: string
-  kind: 'set' | 'session' | 'cardio' | 'mobility' | 'quest' | 'checkin' | 'pr' | 'weekly' | 'raid' | 'achievement' | 'boss' | 'recovery'
+  kind: 'set' | 'session' | 'cardio' | 'mobility' | 'quest' | 'checkin' | 'pr' | 'weekly' | 'raid' | 'achievement' | 'boss' | 'recovery' | 'comeback'
 }
 
 export interface StatBlock {
@@ -245,6 +247,19 @@ export function computeGame(input: GameInput): GameState {
     }
   }
 
+  // --- Comeback quest: first session after a missed gym day (once per week)
+  const bossDays = new Set(tests.filter((t) => t.completedAt).map((t) => t.date))
+  const comebackWeeks = new Set<ISODate>()
+  for (const s of [...done].sort((a, b) => (a.date === b.date ? a.startedAt - b.startedAt : a.date < b.date ? -1 : 1))) {
+    if (comebackWeeks.has(mondayOf(s.date))) continue
+    if (!isStrengthSlot(s.slot) && !CARDIO_SLOTS.has(s.slot)) continue
+    if (done.some((x) => x.date === s.date && x !== s && x.startedAt < s.startedAt)) continue // only the day's first session
+    if (missedBefore(s.date, done, planFor, bossDays)) {
+      comebackWeeks.add(mondayOf(s.date))
+      add(s.date, COMEBACK.bonus, 'Comeback quest', 'comeback')
+    }
+  }
+
   // --- PRs
   const prs = allPRs(sessions)
   for (const p of prs) add(p.date, XP.pr, `PR: ${p.name}`, 'pr')
@@ -256,6 +271,7 @@ export function computeGame(input: GameInput): GameState {
     if (d.protein) add(d.date, XP.dailyQuest, 'Protein quest', 'quest')
     if (d.steps) add(d.date, XP.dailyQuest, 'Steps quest', 'quest')
     if (d.smoothie) add(d.date, XP.dailyQuest, 'Smoothie quest', 'quest')
+    if ((d.meals?.length ?? 0) >= FOOD.slots.length) add(d.date, XP.dailyQuest, 'Ate 5 times', 'quest')
   }
 
   // --- Check-ins
@@ -307,6 +323,7 @@ export function computeGame(input: GameInput): GameState {
     const steps = countDays((x) => !!x.steps)
     const protein = countDays((x) => !!x.protein)
     const smoothie = countDays((x) => !!x.smoothie)
+    const fed = countDays((x) => (x.meals?.length ?? 0) >= FOOD.slots.length)
     const weighs = weighIns(daily).filter((x) => inWeek(x.date)).length
     const checkedIn = checkins.some((c) => c.weekStart === w)
 
@@ -338,6 +355,7 @@ export function computeGame(input: GameInput): GameState {
       onePR: [wPRs.length > 0, `${wPRs.length}/1`],
       mobility7: [mob >= 7, `${mob}/7`],
       smoothie5: [smoothie >= 5, `${smoothie}/5`],
+      meals5: [fed >= 5, `${fed}/5`],
       steps6: [steps >= 6, `${steps}/6`],
       allSets: [
         strengthDone.length >= 3 && strengthDone.every((s) => s.exercises.every((e) => e.sets.every((x) => x.done))),
@@ -488,6 +506,23 @@ function neverMissedTwice(input: GameInput, weeks: WeekResult[]): ISODate | unde
     if (run >= 4) return addDays(w.weekStart, 6)
   }
   return undefined
+}
+
+/** If the most recent planned GYM day before `date` (within a week) had nothing logged, return it. */
+export function missedBefore(date: ISODate, done: WorkoutSession[], planFor: (w: ISODate) => WeekPlan, bossDays: Set<ISODate> = new Set()): ISODate | null {
+  for (let i = 1; i <= COMEBACK.lookbackDays; i++) {
+    const d = addDays(date, -i)
+    if (d < PROGRAM.start) return null
+    const day = planFor(mondayOf(d)).days.find((x) => x.date === d)
+    if (!day || !day.items.some((it) => it.kind === 'strength')) continue
+    return done.some((x) => x.date === d) || bossDays.has(d) ? null : d
+  }
+  return null
+}
+
+/** Has a comeback bonus already been earned this week? */
+export function comebackUsed(game: Pick<GameState, 'ledger'>, weekStart: ISODate) {
+  return game.ledger.some((e) => e.kind === 'comeback' && mondayOf(e.date) === weekStart)
 }
 
 export function themeUnlocked(themeId: string, level: number) {

@@ -4,6 +4,8 @@ import { Btn } from '../components/ui'
 import { updateSettings } from '../db/db'
 import { addDays, fmtShort, mondayOf, type ISODate } from '../lib/dates'
 import { computeStats, raidFor } from '../lib/game'
+import { prText } from '../lib/records'
+import { shareWeekCard } from '../lib/shareCard'
 import { sfx } from '../lib/sound'
 import { useApp } from '../state/app'
 import { fireConfetti } from '../state/fx'
@@ -15,7 +17,7 @@ export function WeekResultsGate() {
   const w = game.weeks.find((x) => x.weekStart === last)
   const show = !!w && w.planned > 0 && !data.settings.seenResults.includes(last)
   if (!show) return null
-  return <WeekResults weekStart={last} onClose={() => void updateSettings({ seenResults: [...data.settings.seenResults, last] })} />
+  return <WeekResults weekStart={last} onClose={() => void updateSettings((s) => ({ seenResults: [...s.seenResults, last] }))} />
 }
 
 export function WeekResults({ weekStart, onClose }: { weekStart: ISODate; onClose: () => void }) {
@@ -79,7 +81,7 @@ export function WeekResults({ weekStart, onClose }: { weekStart: ISODate; onClos
             <div className="font-pixel text-[10px] text-accent mb-2">NEW RECORDS</div>
             {w.prs.map((p, i) => (
               <div key={i} className="text-sm">
-                🏆 {p.name}: {p.weight ? `${p.weight} kg × ${p.reps}` : `${p.reps} reps`}
+                🏆 {p.name}: {prText(p)}
               </div>
             ))}
           </div>
@@ -124,7 +126,16 @@ export function WeekResults({ weekStart, onClose }: { weekStart: ISODate; onClos
           <div className="text-sm text-muted">{next.desc}</div>
         </div>
 
-        <Btn className="w-full mt-4" onClick={onClose}>
+        <Btn
+          variant="gold"
+          className="w-full mt-4"
+          onClick={() =>
+            void shareWeekCard({ week: w, heroName: data.settings.heroName, title: game.title, level: game.level, cosmetics: data.settings.cosmetics, headline })
+          }
+        >
+          📤 Share with a mate
+        </Btn>
+        <Btn className="w-full mt-2" onClick={onClose}>
           Continue ▶
         </Btn>
       </div>

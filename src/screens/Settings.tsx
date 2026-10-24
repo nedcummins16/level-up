@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
+import { AddToCalendar } from '../components/Appointments'
 import { Character } from '../components/Character'
 import { Btn, H, NumField, Panel, Sheet, Toggle } from '../components/ui'
 import { COSMETICS, THEMES, TITLES } from '../config/game'
 import { EXERCISES, PROGRAM, SESSIONS } from '../config/program'
 import { updateSettings } from '../db/db'
 import { exportBackup, parseBackup, resetAll, restoreBackup } from '../lib/backup'
-import { fmtDate, isoInMelbourne, weekdayName } from '../lib/dates'
+import { addDays, fmtDate, isoInMelbourne, mondayOf, weekdayName } from '../lib/dates'
+import { programEnd } from '../lib/plan'
 import { useApp } from '../state/app'
 import { InstallGuide } from './Install'
 
@@ -20,6 +22,7 @@ export function Settings() {
       <BackupSettings />
       <StartWeights />
       <TrainingDays />
+      <ScheduleSettings />
       <PermanentSwaps />
       <MachineSteps />
       <Panel>
@@ -265,6 +268,62 @@ function TrainingDays() {
       </div>
     </Panel>
   )
+}
+
+function ScheduleSettings() {
+  const { data, today } = useApp()
+  const s = data.settings
+  const [open, setOpen] = useState(false)
+  const weeks: string[] = []
+  for (let w = mondayOf(today < PROGRAM.start ? PROGRAM.start : today); w <= programEnd(s.repeats); w = addDays(w, 7)) weeks.push(w)
+  return (
+    <Panel>
+      <H>Times, places & reminders</H>
+      <p className="text-sm text-muted mb-2">
+        Default time for each day and where you train. Change a single day by tapping its 🕓 on Today or Week. The Sunday check-in lets you plan next week and adds it to
+        your Calendar with reminders.
+      </p>
+      <Btn variant="ghost" className="w-full mb-2" onClick={() => setOpen(!open)}>
+        {open ? 'Hide' : 'Edit defaults'}
+      </Btn>
+      {open && (
+        <div className="mb-3">
+          {[1, 2, 3, 4, 5, 6, 7].map((d) => (
+            <div key={d} className="flex items-center gap-2 py-1">
+              <span className="w-24 text-sm">{weekdayName(d, true)}</span>
+              <input
+                type="time"
+                className="px-input !min-h-[44px] flex-1"
+                value={s.defaultTimes[String(d)] ?? '16:00'}
+                onChange={(e) => void updateSettings({ defaultTimes: { ...s.defaultTimes, [String(d)]: e.target.value } })}
+              />
+            </div>
+          ))}
+          {(
+            [
+              ['gym', 'Gym'],
+              ['cardio', 'Cardio (run / swim)'],
+              ['tennis', 'Tennis'],
+              ['beach', 'Beach block'],
+            ] as const
+          ).map(([k, label]) => (
+            <label key={k} className="block mt-2">
+              <span className="block text-sm text-muted mb-1">{label}</span>
+              <BlurInput value={s.places[k]} onSave={(v) => void updateSettings({ places: { ...s.places, [k]: v.trim() } })} />
+            </label>
+          ))}
+        </div>
+      )}
+      <AddToCalendar weekStarts={weeks} label="Add whole remaining plan to Calendar" name="level-up-plan" />
+      <p className="text-xs text-muted mt-1">Tip: do this OR the weekly check-in export, not both, or you'll get double events. Missed sessions shift, so weekly is more accurate.</p>
+    </Panel>
+  )
+}
+
+/** Text input that saves when you leave it (no lost keystrokes). */
+function BlurInput({ value, onSave }: { value: string; onSave: (v: string) => void }) {
+  const [v, setV] = useState(value)
+  return <input className="px-input !min-h-[44px]" value={v} onChange={(e) => setV(e.target.value)} onBlur={() => v !== value && onSave(v)} />
 }
 
 function PermanentSwaps() {

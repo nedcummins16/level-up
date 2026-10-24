@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { XP } from '../config/game'
+import { COMEBACK, XP } from '../config/game'
 import { defaultSettings } from '../db/db'
 import type { DailyLog, LifeEvent, WorkoutSession } from '../db/types'
 import { addDays } from './dates'
@@ -117,5 +117,37 @@ describe('mobility streak + achievements', () => {
     const got = g.achievements.filter((a) => a.unlocked).map((a) => a.id)
     expect(got).toContain('firstSession')
     expect(got).toContain('ironWeek')
+  })
+})
+
+describe('comeback quest', () => {
+  it('gives a bonus for the first session after a missed gym day', () => {
+    // Mon LA done, Tue UA missed, Wed cardio done = comeback
+    const g = game([s('2026-11-16', 'LA'), s('2026-11-18', 'cardio', 0, 30)], '2026-11-19')
+    const cb = g.ledger.filter((e) => e.kind === 'comeback')
+    expect(cb).toHaveLength(1)
+    expect(cb[0]).toMatchObject({ date: '2026-11-18', amount: COMEBACK.bonus })
+  })
+
+  it('skipping optional cardio never triggers it (no reward for skipping)', () => {
+    const g = game(fullWeek('2026-11-16'), '2026-11-21')
+    expect(g.ledger.some((e) => e.kind === 'comeback')).toBe(false)
+  })
+
+  it('at most once per week, and smaller than a session is worth', () => {
+    // Week 2: Mon missed, Tue done (bonus), Wed missed... Thu done (no second bonus)
+    const g = game([...fullWeek('2026-11-16'), s('2026-11-24', 'UA'), s('2026-11-27', 'LB')], '2026-11-28')
+    const cb = g.ledger.filter((e) => e.kind === 'comeback')
+    expect(cb).toHaveLength(1)
+    expect(cb[0].date).toBe('2026-11-24')
+    expect(COMEBACK.bonus).toBeLessThan(XP.cardio)
+  })
+})
+
+describe('food quest', () => {
+  it('gives quest XP for eating 5 times', () => {
+    const daily: DailyLog[] = [{ date: '2026-11-16', mobility: [], mobilityDone: false, meals: ['breakfast', 'lunch', 'dinner', 'snack1', 'snack2'] }, { date: '2026-11-17', mobility: [], mobilityDone: false, meals: ['breakfast'] }]
+    const g = game([], '2026-11-18', { daily })
+    expect(g.ledger.filter((e) => e.reason === 'Ate 5 times')).toHaveLength(1)
   })
 })

@@ -56,13 +56,12 @@ const JERSEYS: Record<string, [string, string]> = {
 
 const AURAS: Record<string, string> = { 'aura-blue': '#34e0ff', 'aura-gold': '#ffd23f' }
 
-export function Character({ cosmetics = {}, size = 160, className = '' }: { cosmetics?: Record<string, string>; size?: number; className?: string }) {
+/** All pixels of the hero with cosmetics applied (16 x 24 grid). Used by the SVG and the share card. */
+export function heroRects(cosmetics: Record<string, string> = {}) {
   const [shirt, number] = JERSEYS[cosmetics.shirt ?? 'default'] ?? JERSEYS.default
-  const shoes = '#f4f1ff'
-  const palette: Record<string, string> = { K: '#120c24', H: '#3b2416', S: '#e0ac69', L: '#e0ac69', T: shirt, W: number, P: '#2a2459', O: shoes }
+  const palette: Record<string, string> = { K: '#120c24', H: '#3b2416', S: '#e0ac69', L: '#e0ac69', T: shirt, W: number, P: '#2a2459', O: '#f4f1ff' }
   const equipped = Object.values(cosmetics).filter((id) => LAYERS[id])
   const rects: { x: number; y: number; c: string }[] = []
-
   const drawLayer = (behind: boolean) => {
     for (const id of equipped) {
       for (const layer of LAYERS[id]) {
@@ -76,7 +75,6 @@ export function Character({ cosmetics = {}, size = 160, className = '' }: { cosm
       }
     }
   }
-
   drawLayer(true)
   BASE.forEach((row, y) => {
     ;[...row].forEach((ch, x) => {
@@ -84,8 +82,11 @@ export function Character({ cosmetics = {}, size = 160, className = '' }: { cosm
     })
   })
   drawLayer(false)
+  return { rects, aura: AURAS[cosmetics.aura ?? ''] as string | undefined }
+}
 
-  const aura = AURAS[cosmetics.aura ?? '']
+export function Character({ cosmetics = {}, size = 160, className = '' }: { cosmetics?: Record<string, string>; size?: number; className?: string }) {
+  const { rects, aura } = heroRects(cosmetics)
   return (
     <svg
       viewBox="-2 -2 20 28"

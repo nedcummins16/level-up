@@ -45,7 +45,7 @@ export function RaidCard({ week }: { week?: WeekResult | null }) {
           className="w-full mt-2"
           onClick={() => {
             const loot = LOOT[Math.floor(Math.random() * LOOT.length)]
-            void updateSettings({ openedChests: [...app.data.settings.openedChests, w.weekStart] })
+            void updateSettings((s) => ({ openedChests: [...s.openedChests, w.weekStart] }))
             fx.celebrate({ kind: 'chest', title: r.name, sub: `You found: ${loot}`, icon: '🎁', xp: XP.raidChest })
           }}
         >

@@ -1,4 +1,6 @@
+import { TimePlace } from '../components/Appointments'
 import { CardioCard } from '../components/CardioCard'
+import { CoachBanners } from '../components/CoachBanners'
 import { MobilityCard } from '../components/MobilityCard'
 import { StrengthCard } from '../components/StrengthCard'
 import { Btn, Check, H, Panel } from '../components/ui'
@@ -35,7 +37,9 @@ export function Today() {
         </div>
       </header>
 
+      <TimePlace date={today} items={todayPlan.items} />
       <LifeBanners />
+      <CoachBanners />
 
       {xmasWeek && data.settings.christmasMove === null && (
         <Panel accent>
@@ -153,7 +157,7 @@ function PreStart() {
 }
 
 function PostProgram() {
-  const { today, data } = useApp()
+  const { today } = useApp()
   const nextMonday = weekday(today) === 1 ? today : addDays(mondayOf(today), 7)
   return (
     <div className="px-3 pt-safe pb-32">
@@ -164,7 +168,7 @@ function PostProgram() {
         <Btn
           variant="gold"
           className="w-full"
-          onClick={() => void updateSettings({ repeats: [...data.settings.repeats, nextMonday] })}
+          onClick={() => void updateSettings((s) => ({ repeats: [...s.repeats, nextMonday] }))}
         >
           Repeat Push from {fmtDay(nextMonday)}
         </Btn>

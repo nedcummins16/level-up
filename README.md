@@ -58,6 +58,17 @@ After that, every `git push` to `main` re-deploys automatically. Open the app an
 
 ---
 
+## Reminders (no push notifications needed)
+
+iPhone web apps can't send notifications for free, so Level Up uses your **Calendar** instead:
+
+- At the **Sunday check-in**, plan next week's times and places, and leave "Add to my Calendar" on. iOS opens the file. Tap **Add All**.
+- Each session gets two alerts: **8pm the night before** (pack your bag) and **1 hour before**.
+- If the file doesn't open straight into Calendar: Share → **Save to Files** → open it in Files → **Add All**.
+- **More → Times, places & reminders** sets your default times and can add the whole plan at once. Use either this or the weekly export, not both, or you'll get duplicate events.
+
+---
+
 ## Backups (important!)
 
 Your data lives only on your phone, and iOS can delete website data. Every Sunday the check-in reminds you to back up:
@@ -88,3 +99,7 @@ To change the icon, edit `public/icon.svg` and run `npm run generate-assets` (th
 | Melbourne dates (no UTC off-by-one) | `src/lib/dates.ts` |
 | Rest timer (timestamp-based) | `src/state/timer.tsx` |
 | Backup / restore | `src/lib/backup.ts` |
+| Calendar export (.ics) | `src/lib/ics.ts`, `src/lib/calendarEvents.ts` |
+| Comeback quest, light-week coach | `src/lib/game.ts`, `src/lib/coach.ts` |
+| Weekly share card | `src/lib/shareCard.ts` |
+| Food quest + bulk menu | `FOOD` in `src/config/game.ts` |

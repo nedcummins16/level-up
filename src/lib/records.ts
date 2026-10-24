@@ -60,6 +60,14 @@ export interface PREvent {
   name: string
   weight: number | null
   reps: number
+  equipment: Equipment
+}
+
+/** "42.5 kg × 8", "6 reps @ 20 kg assist", "30 reps" */
+export function prText(p: Pick<PREvent, 'weight' | 'reps' | 'equipment'>) {
+  if (p.equipment === 'assisted') return p.weight ? `${p.reps} reps @ ${p.weight} kg assist` : `${p.reps} strict reps`
+  if (p.equipment === 'timed') return `${p.reps}s`
+  return p.weight ? `${p.weight} kg × ${p.reps}` : `${p.reps} reps`
 }
 
 /** Walk all finished sessions in time order and list PRs (max one per exercise per session). */
@@ -73,7 +81,7 @@ export function allPRs(sessions: WorkoutSession[]): PREvent[] {
       if (!sets.length) continue
       const b = bests.get(e.ex) ?? { maxLoad: null, repsAt: new Map(), maxReps: 0, sessions: 0 }
       const pr = sets.find((set) => isPR(b, set, e.equipment))
-      if (pr) out.push({ sessionId: s.id!, date: s.date, ex: e.ex, name: e.name, weight: pr.weight, reps: pr.reps! })
+      if (pr) out.push({ sessionId: s.id!, date: s.date, ex: e.ex, name: e.name, weight: pr.weight, reps: pr.reps!, equipment: e.equipment })
       for (const set of sets) {
         const load = loadOf(set.weight, e.equipment)
         b.maxLoad = b.maxLoad === null ? load : Math.max(b.maxLoad, load)
