@@ -1,32 +1,85 @@
-# React + TypeScript + Vite
+# Level Up 🎮💪
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A 12-week training plan that plays like a game. It's a Progressive Web App (PWA): it installs on your iPhone home screen, works offline, and keeps all your data on your phone. It's free, with no accounts and no servers.
 
-Currently, two official plugins are available:
+**Stack:** React + TypeScript + Vite, Tailwind, Dexie (IndexedDB), Recharts, vite-plugin-pwa. Hosted free on GitHub Pages.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Run it on your computer
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install        # first time only
+npm run dev        # start the app → open http://localhost:5173/level-up/
+npm test           # run the tests (progression engine, Life Happens rules, game logic)
+npm run build      # production build into dist/
+npm run preview    # serve the production build → http://localhost:4173/level-up/
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Before 16 Nov 2026 the app shows a countdown. To try workouts now, go to **More → Time travel**, pick a date like 16/11/2026 and tap **Go**. Use **More → Reset everything** afterwards for a clean start.
+
+**Test on your phone before deploying:** run `npm run dev`, then open the "Network" address it prints (e.g. `http://192.168.1.20:5173/level-up/`) in Safari on your iPhone (same Wi-Fi). Offline mode and installing only work on the real HTTPS site.
+
+---
+
+## Deploy to GitHub Pages (one-time setup)
+
+1. Create a free account at <https://github.com> if you haven't already.
+2. Click **+ → New repository**. Name it exactly **`level-up`**, make it **Public**, and **don't** add a README. Click **Create repository**.
+3. In the terminal, inside this folder:
+   ```bash
+   git remote add origin https://github.com/YOUR-USERNAME/level-up.git
+   git push -u origin main
+   ```
+   The first time, git asks you to sign in. Choose the browser option, or use a [personal access token](https://github.com/settings/tokens) as the password.
+4. On GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+5. Open the **Actions** tab. The "Deploy to GitHub Pages" run takes about a minute. When it shows a green tick, your app is live at
+   **`https://YOUR-USERNAME.github.io/level-up/`**
+
+After that, every `git push` to `main` re-deploys automatically. Open the app and you'll see **"Update available"**. Tap **Update**. Your data stays.
+
+> Using a different repo name? Change `BASE` in `vite.config.ts` and `basePath` in `pwa-assets.config.ts` to `/your-name/`.
+
+---
+
+## Install on your iPhone
+
+1. Open `https://YOUR-USERNAME.github.io/level-up/` in **Safari** (not Chrome).
+2. Tap **Share** (the square with the arrow ⬆️; tap **⋯** first if you see it).
+3. Scroll down and tap **Add to Home Screen** → **Add**.
+4. Open **Level Up** from your home screen. It runs full-screen and works offline from then on.
+
+⚠️ On iPhone, the home-screen app and Safari keep **separate** data. Always log from the home-screen icon.
+
+---
+
+## Backups (important!)
+
+Your data lives only on your phone, and iOS can delete website data. Every Sunday the check-in reminds you to back up:
+
+- **More → Export backup** opens the share sheet → **Save to Files** → iCloud Drive.
+- **More → Import / restore** picks that file and restores everything (it replaces what's on the phone).
+
+---
+
+## Change the plan
+
+Everything about the program is in **`src/config/program.ts`**: dates, phases, sessions, sets/reps/rest, warm-up, mobility, tests. The game settings (XP values, levels, titles, unlocks, raids, achievements, stat formulas) are in **`src/config/game.ts`**. Edit a file, `git push`, and tap Update on your phone.
+
+If you ever change the database structure (`src/db/db.ts`), add a **new** `this.version(2).stores(...)`. Never edit version 1. That way your existing data is migrated, not lost.
+
+To change the icon, edit `public/icon.svg` and run `npm run generate-assets` (then delete the `apple-splash-landscape-*` files, which aren't used).
+
+---
+
+## How it works (for the curious)
+
+| Thing | Where |
+|---|---|
+| Today's plan + shifting missed sessions | `src/lib/schedule.ts` |
+| Life Happens options | `src/lib/life.ts` |
+| Weight suggestions (double progression) | `src/lib/progression.ts` |
+| XP, levels, streaks, quests, achievements | `src/lib/game.ts` (all calculated from your logs) |
+| Melbourne dates (no UTC off-by-one) | `src/lib/dates.ts` |
+| Rest timer (timestamp-based) | `src/state/timer.tsx` |
+| Backup / restore | `src/lib/backup.ts` |

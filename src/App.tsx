@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { GameWatcher } from './components/GameWatcher'
 import { RestTimerBar } from './components/RestTimer'
+import { UpdatePrompt } from './components/UpdatePrompt'
 import { getSettings, updateSettings } from './db/db'
 import { fmtDate } from './lib/dates'
 import { setSoundEnabled, unlockAudio } from './lib/sound'
@@ -10,10 +11,11 @@ import { FxProvider } from './state/fx'
 import { TimerProvider } from './state/timer'
 import { Home } from './screens/Home'
 import { InstallGate } from './screens/Install'
-import { Progress } from './screens/Progress'
 import { Settings } from './screens/Settings'
 import { Today } from './screens/Today'
 import { Week } from './screens/Week'
+
+const Progress = lazy(() => import('./screens/Progress').then((m) => ({ default: m.Progress })))
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'home', label: 'Hero', icon: '🛡️' },
@@ -65,15 +67,18 @@ export default function App() {
   }
 
   return (
-    <InstallGate>
-      <TimerProvider>
-        <FxProvider>
-          <AppProvider data={data} today={today} tab={tab} go={go}>
-            <Shell />
-          </AppProvider>
-        </FxProvider>
-      </TimerProvider>
-    </InstallGate>
+    <>
+      <UpdatePrompt />
+      <InstallGate>
+        <TimerProvider>
+          <FxProvider>
+            <AppProvider data={data} today={today} tab={tab} go={go}>
+              <Shell />
+            </AppProvider>
+          </FxProvider>
+        </TimerProvider>
+      </InstallGate>
+    </>
   )
 }
 
@@ -88,7 +93,11 @@ function Shell() {
       {tab === 'home' && <Home />}
       {tab === 'today' && <Today />}
       {tab === 'week' && <Week />}
-      {tab === 'progress' && <Progress />}
+      {tab === 'progress' && (
+        <Suspense fallback={<div className="p-6 font-pixel text-accent anim-blink">LOADING…</div>}>
+          <Progress />
+        </Suspense>
+      )}
       {tab === 'settings' && <Settings />}
       <RestTimerBar />
       <GameWatcher />
