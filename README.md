@@ -24,6 +24,11 @@ Before 16 Nov 2026 the app shows a countdown. To try workouts now, go to **More 
 
 ## Deploy to GitHub Pages (one-time setup)
 
+0. **Set your git name + private email** (so your real email isn't public). On GitHub go to **Settings → Emails**, tick **Keep my email addresses private**, and copy the address that looks like `12345678+username@users.noreply.github.com`. Then in this folder:
+   ```bash
+   git config user.name "Your Name"
+   git config user.email "12345678+username@users.noreply.github.com"
+   ```
 1. Create a free account at <https://github.com> if you haven't already.
 2. Click **+ → New repository**. Name it exactly **`level-up`**, make it **Public**, and **don't** add a README. Click **Create repository**.
 3. In the terminal, inside this folder:
