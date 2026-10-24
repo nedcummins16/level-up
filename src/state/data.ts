@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useState } from 'react'
-import { db, defaultSettings, getSettings } from '../db/db'
+import { db, defaultSettings } from '../db/db'
 import type { CheckIn, DailyLog, LifeEvent, Measurement, Settings, TestResult, WorkoutSession } from '../db/types'
 import { isoInMelbourne, setTodayOverride, type ISODate } from '../lib/dates'
 
@@ -26,7 +26,8 @@ export function useAppData(): AppData | undefined {
       db.tests.toArray(),
       db.measurements.orderBy('date').toArray(),
     ])
-    if (!settings) await getSettings()
+    // Never write inside a live query (it's read-only). Missing settings → defaults;
+    // App creates the settings row on first launch.
     return {
       settings: { ...defaultSettings(), ...settings },
       sessions,

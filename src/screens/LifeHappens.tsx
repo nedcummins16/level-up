@@ -95,7 +95,8 @@ export function LifeBanners() {
   const lastPlannedStrength = lastWeekPlan.days.flatMap((d) => d.items).filter((i) => i.kind === 'strength').length
   const lastDone = data.sessions.filter((s) => s.status === 'done' && s.date >= lastWeek && s.date < mondayOf(today)).length
   const alreadyRebuilding = data.life.some((e) => e.type === 'missedWeek' && e.start >= lastWeek)
-  const suggestRebuild = ['foundation', 'build', 'push', 'repeat'].includes(phaseLast) && lastPlannedStrength > 0 && lastDone === 0 && !alreadyRebuilding && data.sessions.some((s) => s.date < lastWeek)
+  const gymPhases = ['foundation', 'build', 'push', 'repeat']
+  const suggestRebuild = gymPhases.includes(phaseLast) && gymPhases.includes(getPhase(today, data.settings.repeats).id) && lastPlannedStrength > 0 && lastDone === 0 && !alreadyRebuilding && data.sessions.some((s) => s.date < lastWeek)
 
   if (!shown.length && !suggestRebuild) return null
   return (

@@ -90,15 +90,17 @@ function Shell() {
       {data.settings.timeTravel && (
         <div className="bg-accent-2 text-black text-center text-xs font-pixel py-1 pt-safe">⏳ TIME TRAVEL: {fmtDate(today)}</div>
       )}
-      {tab === 'home' && <Home />}
-      {tab === 'today' && <Today />}
-      {tab === 'week' && <Week />}
-      {tab === 'progress' && (
-        <Suspense fallback={<div className="p-6 font-pixel text-accent anim-blink">LOADING…</div>}>
-          <Progress />
-        </Suspense>
-      )}
-      {tab === 'settings' && <Settings />}
+      <main>
+        {tab === 'home' && <Home />}
+        {tab === 'today' && <Today />}
+        {tab === 'week' && <Week />}
+        {tab === 'progress' && (
+          <Suspense fallback={<div className="p-6 font-pixel text-accent anim-blink">LOADING…</div>}>
+            <Progress />
+          </Suspense>
+        )}
+        {tab === 'settings' && <Settings />}
+      </main>
       <RestTimerBar />
       <GameWatcher />
       <nav className="fixed bottom-0 left-0 right-0 z-40 bg-bg-2 border-t-4 border-edge pb-safe">

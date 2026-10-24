@@ -95,7 +95,7 @@ export function ActiveSession({ session }: { session: WorkoutSession }) {
     // PR check: one PR per exercise per session.
     const best = bestFor(app.data.sessions.filter((x) => x.status === 'done'), e.ex, e.equipment, s.id)
     const earlierPR = e.sets.some((x, j) => j !== si && x.done && isPR(best, x, e.equipment))
-    if (!earlierPR && isPR(best, doneSet, e.equipment) && !mods.noPR) {
+    if (!earlierPR && isPR(best, doneSet, e.equipment)) {
       const what = e.equipment === 'assisted' ? `${reps} reps @ ${weight} kg assist` : weight ? `${weight} kg x ${reps}` : `${reps} reps`
       fx.celebrate({ kind: 'pr', title: e.name, sub: what, icon: '🏆', xp: XP.pr })
     }

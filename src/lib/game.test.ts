@@ -46,9 +46,10 @@ const fullWeek = (mon: string) => [s(mon, 'LA'), s(addDays(mon, 1), 'UA'), s(add
 describe('XP & levels', () => {
   it('levels need rising XP', () => {
     expect(levelFromXP(0).level).toBe(1)
-    expect(levelFromXP(149).level).toBe(1)
-    expect(levelFromXP(150).level).toBe(2)
-    expect(levelFromXP(150 + 225).level).toBe(3)
+    expect(levelFromXP(299).level).toBe(1)
+    expect(levelFromXP(300).level).toBe(2)
+    expect(levelFromXP(300 + 449).level).toBe(2)
+    expect(levelFromXP(300 + 450).level).toBe(3)
   })
 
   it('awards 100 per session + 10 per set, and caps strength XP at 4 sessions a week', () => {

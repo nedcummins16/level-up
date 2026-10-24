@@ -170,6 +170,9 @@ body {
   font-family: var(--font-body);
   font-size: 18px;
   line-height: 1.35;
+  /* Pixelify's "fi" ligature looks like "A" */
+  font-variant-ligatures: none;
+  font-feature-settings: 'liga' 0, 'clig' 0;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
 }

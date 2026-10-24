@@ -13,7 +13,7 @@ import type { StrengthSlot } from '../config/types'
 import type { LifeEvent, WorkoutSession } from '../db/types'
 import { addDays, type ISODate } from './dates'
 import { dayMods, hasActive } from './life'
-import { basePlan, weekDays, type PlanItem, type PlanSettings } from './plan'
+import { basePlan, isBeachDay, weekDays, type PlanItem, type PlanSettings } from './plan'
 
 export interface DayPlan {
   date: ISODate
@@ -110,37 +110,47 @@ export function planWeek(weekStart: ISODate, ctx: ScheduleCtx): WeekPlan {
   const open = days.map((_, i) => i).filter(available)
   const lowerLogged = (d: ISODate) => loggedOn(d).some((s) => isLowerSlot(s.slot))
 
-  // Brute force: choose increasing days for the first k sessions of the queue.
-  let best: { idx: number[]; score: number[] } | null = null
-  for (let k = queue.length; k >= 0 && !best; k--) {
-    const pick = (start: number, chosen: number[]) => {
-      if (chosen.length === k) {
-        if (!validLower(chosen)) return
-        const makeups = chosen.filter((i) => !strengthDays.has(days[i])).length
-        const score = [makeups, chosen.reduce((a, b) => a + b, 0)]
-        if (!best || score[0] < best.score[0] || (score[0] === best.score[0] && score[1] < best.score[1]))
-          best = { idx: [...chosen], score }
-        return
-      }
-      for (let j = start; j < open.length; j++) pick(j + 1, [...chosen, open[j]])
-    }
-    const validLower = (chosen: number[]) => {
-      const lowerDays = new Set<ISODate>()
-      for (const d of days) if (lowerLogged(d)) lowerDays.add(d)
-      chosen.forEach((dayIdx, qi) => {
-        if (isLowerSlot(queue[qi])) lowerDays.add(days[dayIdx])
-      })
-      if (lowerLogged(addDays(weekStart, -1))) lowerDays.add(addDays(weekStart, -1))
-      for (const d of lowerDays) if (lowerDays.has(addDays(d, 1))) return false
-      return true
-    }
-    pick(0, [])
+  // Search every way to place the queue in order on increasing open days, allowing
+  // a session to be skipped when it can't fit. Best = most sessions placed, then
+  // drop LATER sessions rather than earlier ones, then fewest make-up days, then earliest.
+  const fitsDay = (slot: StrengthSlot, dayIdx: number) =>
+    // No gym during the beach block, and beach sessions only on beach days.
+    (SESSIONS[slot].kind === 'beach') === isBeachDay(days[dayIdx])
+  const validLower = (placed: [number, number][]) => {
+    const lowerDays = new Set<ISODate>()
+    for (const d of days) if (lowerLogged(d)) lowerDays.add(d)
+    for (const [qi, dayIdx] of placed) if (isLowerSlot(queue[qi])) lowerDays.add(days[dayIdx])
+    if (lowerLogged(addDays(weekStart, -1))) lowerDays.add(addDays(weekStart, -1))
+    for (const d of lowerDays) if (lowerDays.has(addDays(d, 1))) return false
+    return true
   }
-  const chosen: number[] = (best as { idx: number[] } | null)?.idx ?? []
-  const unfit = queue.slice(chosen.length)
+  const better = (a: number[], b: number[]) => {
+    for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] < b[i]
+    return false
+  }
+  let best: { placed: [number, number][]; score: number[] } | null = null
+  const search = (qi: number, minOpen: number, placed: [number, number][]) => {
+    if (qi === queue.length) {
+      if (!validLower(placed)) return
+      const placedSet = new Set(placed.map(([q]) => q))
+      const skipCost = queue.reduce((acc, _, i) => acc + (placedSet.has(i) ? 0 : 2 ** (queue.length - 1 - i)), 0)
+      const makeups = placed.filter(([, d]) => !strengthDays.has(days[d])).length
+      const score = [-placed.length, skipCost, makeups, placed.reduce((a, [, d]) => a + d, 0)]
+      if (!best || better(score, best.score)) best = { placed: [...placed], score }
+      return
+    }
+    for (let j = minOpen; j < open.length; j++) {
+      if (fitsDay(queue[qi], open[j])) search(qi + 1, j + 1, [...placed, [qi, open[j]]])
+    }
+    search(qi + 1, minOpen, placed) // skip this one
+  }
+  search(0, 0, [])
+  const placed: [number, number][] = (best as { placed: [number, number][] } | null)?.placed ?? []
+  const placedQ = new Set(placed.map(([q]) => q))
+  const unfit = queue.filter((_, i) => !placedQ.has(i))
 
   const assignment = new Map<number, StrengthSlot>()
-  chosen.forEach((dayIdx, qi) => assignment.set(dayIdx, queue[qi]))
+  for (const [qi, dayIdx] of placed) assignment.set(dayIdx, queue[qi])
 
   // Next beach letter for "no gym" days.
   const lastBeach = [...ctx.sessions]

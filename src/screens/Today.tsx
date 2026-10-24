@@ -77,6 +77,16 @@ export function Today() {
         </Panel>
       )}
 
+      {weekday(today) === 7 && !data.checkins.some((c) => c.weekStart === mondayOf(today)) && (
+        <Panel accent>
+          <div className="font-pixel text-[11px] text-xp mb-2">📋 SUNDAY CHECK-IN</div>
+          <p className="text-sm mb-3">Review your week, log Garmin numbers and back up your data.</p>
+          <Btn variant="gold" className="w-full" onClick={() => app.go('week')}>
+            Go to check-in
+          </Btn>
+        </Panel>
+      )}
+
       <MobilityCard date={today} gymDay={gymDay} />
       <Panel>
         <div className="text-sm">

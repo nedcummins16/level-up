@@ -20,9 +20,12 @@ export const XP = {
   strengthCapPerWeek: 4,
 }
 
-/** XP needed to go from level L to L+1. */
+/**
+ * XP needed to go from level L to L+1. Tuned so a consistent (not perfect)
+ * 12 weeks reaches Rim Rattler (level 22, ~38k XP) around the final boss.
+ */
 export function xpToNext(level: number) {
-  return 150 + 75 * (level - 1)
+  return 300 + 150 * (level - 1)
 }
 
 export const TITLES = [

@@ -181,3 +181,29 @@ describe('Life Happens options', () => {
     expect(dayMods(ev, '2026-11-30').halfSets).toBe(false)
   })
 })
+
+describe('scheduler: beach block boundary', () => {
+  const BW = '2026-12-28' // week 7: Mon LA, Tue UA (Build), then beach from Wed 30 Dec
+  const plan = (today: string, sessions: WorkoutSession[] = []) => {
+    const w = planWeek(BW, { today, settings: S(), sessions, life: [] })
+    return Object.fromEntries(w.days.map((d) => [d.date, d.items.filter((i) => i.kind === 'strength').map((i) => i.slot).join('+')]))
+  }
+
+  it('never moves a missed gym session into the no-gym beach block', () => {
+    const p = plan('2026-12-30')
+    expect(p['2026-12-30']).toBe('BA')
+    expect(p['2027-01-01']).toBe('BB')
+  })
+
+  it('missed Monday Lower A can still go on Tuesday before the beach', () => {
+    const p = plan('2026-12-29')
+    expect(p['2026-12-29']).toBe('LA')
+    expect(p['2026-12-30']).toBe('BA')
+  })
+
+  it('a missed beach session shifts to the next beach day (Sat sprints dropped)', () => {
+    const p = plan('2027-01-01', [done('2026-12-28', 'LA'), done('2026-12-29', 'UA')])
+    expect(p['2027-01-01']).toBe('BA')
+    expect(p['2027-01-02']).toBe('BB')
+  })
+})
