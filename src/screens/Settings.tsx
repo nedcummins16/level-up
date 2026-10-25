@@ -69,7 +69,7 @@ function HeroSettings() {
     <Panel>
       <H>Hero</H>
       <div className="flex gap-3 items-center mb-3">
-        <Character cosmetics={s.cosmetics} size={110} />
+        <Character cosmetics={s.cosmetics} build={game.physique} size={110} />
         <div className="flex-1">
           <label className="block text-sm text-muted mb-1">Name</label>
           <input className="px-input mb-2" value={name} maxLength={16} onChange={(e) => setName(e.target.value)} onBlur={() => void updateSettings({ heroName: name.trim() || 'Hero' })} />

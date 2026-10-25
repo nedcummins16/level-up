@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { COSMETICS, UNLOCKABLES, XP, titleFor } from '../config/game'
+import { COSMETICS, DUNK, UNLOCKABLES, XP, titleFor } from '../config/game'
 import { updateSettings } from '../db/db'
 import { useApp } from '../state/app'
 import { useFx } from '../state/fx'
@@ -8,7 +8,7 @@ import { useFx } from '../state/fx'
 export function GameWatcher() {
   const { game, data } = useApp()
   const fx = useFx()
-  const handled = useRef<{ level: number; ach: Set<string> } | null>(null)
+  const handled = useRef<{ level: number; ach: Set<string>; build?: { bulk: number; str: number }; dunk?: Set<string> } | null>(null)
   const s = data.settings
 
   useEffect(() => {
@@ -43,9 +43,35 @@ export function GameWatcher() {
       patch.seenAchievements = [...h.ach]
     }
 
+    // Physique: celebrate when your real numbers make the hero bigger.
+    const pb = { bulk: game.physique.bulk, str: game.physique.str }
+    if (!h.build) h.build = s.seenBuild ?? pb
+    if (pb.bulk > h.build.bulk || pb.str > h.build.str) {
+      fx.celebrate({
+        kind: 'achievement',
+        title: pb.bulk > h.build.bulk ? `Bigger build: ${game.physique.bulkName}` : `Stronger build: ${game.physique.strName}`,
+        sub: 'Your hero grew because YOU did. Real weigh-ins, real lifts.',
+        icon: '💪',
+      })
+    }
+    if (pb.bulk !== h.build.bulk || pb.str !== h.build.str || !s.seenBuild) {
+      h.build = pb
+      patch.seenBuild = pb
+    }
+
+    // Dunk meter milestones
+    if (!h.dunk) h.dunk = new Set(s.seenDunk)
+    const newDunk = game.dunk.reached.filter((id) => !h.dunk!.has(id))
+    if (newDunk.length) {
+      const m = DUNK.milestones.find((x) => x.id === newDunk[newDunk.length - 1])!
+      fx.celebrate({ kind: 'achievement', title: `Dunk meter: ${m.name}!`, sub: `Best touch ${(game.dunk.best! / 100).toFixed(2)} m. The rim is at 3.05 m.`, icon: '🏀' })
+      for (const id of newDunk) h.dunk.add(id)
+      patch.seenDunk = [...h.dunk]
+    }
+
     if (Object.keys(patch).length) void updateSettings(patch)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [game.level, game.achievements])
+  }, [game.level, game.achievements, game.physique.bulk, game.physique.str, game.dunk.reached.length])
 
   return null
 }

@@ -39,6 +39,9 @@ export interface Settings {
   places: { gym: string; cardio: string; tennis: string; beach: string }
   /** Weeks where you said "no thanks" to the light-week suggestion. */
   lightDismissed: ISODate[]
+  /** Last physique / dunk milestone you've been shown (so celebrations fire once). */
+  seenBuild: { bulk: number; str: number } | null
+  seenDunk: string[]
 }
 
 /** When and where you'll train on a date (implementation intention). */
@@ -135,6 +138,9 @@ export interface DailyLog {
   meals?: string[]
   /** Gym bag packed (stored on the day you'll train). */
   bag?: boolean
+  /** Optional jump check: standing reach and best jump touch height (cm). */
+  standReach?: number | null
+  jumpTouch?: number | null
 }
 
 export interface CheckIn {

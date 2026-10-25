@@ -201,3 +201,31 @@ export const STATS = {
   /** JMP: jump reach cm (20 → 0, 75 → 99). */
   jmp: { min: 20, max: 75 },
 }
+
+/**
+ * Your hero's body follows your REAL numbers, not your level.
+ * Bulk tiers: reached when your 7-day average weight passes these points on the way
+ * from start to goal weight. Strength tiers: reached at these STR stat values.
+ * You only shrink back after `dropAfterDays` below a tier (one light weigh-in won't undo him).
+ */
+export const PHYSIQUE = {
+  bulkSteps: [0.15, 0.4, 0.65, 0.9],
+  strSteps: [25, 35, 45, 60],
+  dropAfterDays: 14,
+  bulkNames: ['Twig', 'Lean', 'Filling out', 'Solid', 'Built'],
+  strNames: ['Noodle arms', 'Getting there', 'Strong', 'Powerful', 'Beast'],
+}
+
+/** Dunk meter: your best jump TOUCH height (cm) climbing toward the 3.05 m rim. */
+export const DUNK = {
+  rimCm: 305,
+  milestones: [
+    { id: 'net', name: 'Touch the net', cm: 260 },
+    { id: 'board', name: 'Touch the backboard', cm: 290 },
+    { id: 'rim', name: 'Touch the rim', cm: 305 },
+    { id: 'dunk', name: 'Dunk height', cm: 320 },
+  ],
+}
+
+/** Boss trophies: share of results that beat your last test. */
+export const TROPHY = { gold: 0.75, silver: 0.5 }

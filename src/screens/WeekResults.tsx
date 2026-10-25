@@ -130,7 +130,7 @@ export function WeekResults({ weekStart, onClose }: { weekStart: ISODate; onClos
           variant="gold"
           className="w-full mt-4"
           onClick={() =>
-            void shareWeekCard({ week: w, heroName: data.settings.heroName, title: game.title, level: game.level, cosmetics: data.settings.cosmetics, headline })
+            void shareWeekCard({ week: w, heroName: data.settings.heroName, title: game.title, level: game.level, cosmetics: data.settings.cosmetics, build: game.physique, headline })
           }
         >
           📤 Share with a mate

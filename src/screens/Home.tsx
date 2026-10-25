@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Character, StreakFlame } from '../components/Character'
 import { DailyQuests } from '../components/DailyQuests'
+import { DunkMeter, PhysiqueCard, TrophyCup } from '../components/Growth'
 import { RaidCard } from '../components/RaidCard'
 import { TimePlace } from '../components/Appointments'
 import { appointmentFor, fmtTime } from '../lib/appointments'
@@ -10,7 +11,7 @@ import { updateSettings } from '../db/db'
 import { PROGRAM } from '../config/program'
 import { avg7 } from '../lib/body'
 import { addDays, fmtDate, fmtDay, mondayOf } from '../lib/dates'
-import { getPhase, weekNumber } from '../lib/plan'
+import { allTestDays, getPhase, weekNumber } from '../lib/plan'
 import { patchDaily } from '../state/actions'
 import { useApp } from '../state/app'
 import { WeekResultsGate } from './WeekResults'
@@ -48,7 +49,7 @@ export function Home() {
           <polygon points="60,18 180,18 204,30 180,42 60,42 36,30" fill="none" stroke="var(--edge)" strokeWidth="2" />
         </svg>
         <div className="relative mb-3 anim-bob">
-          <Character cosmetics={s.cosmetics} size={216} />
+          <Character cosmetics={s.cosmetics} build={game.physique} size={216} />
         </div>
         <div className="absolute left-3 top-3 w-16 h-[72px]">
           <svg width="64" height="72" viewBox="0 0 64 72" aria-hidden="true">
@@ -112,6 +113,8 @@ export function Home() {
       <DailyQuests />
       <WeighIn />
       <RaidCard />
+      <PhysiqueCard />
+      <DunkMeter />
 
       {/* Next unlock */}
       {game.nextUnlock && (
@@ -204,8 +207,28 @@ function xpUntil(level: number, xpInLevel: number, target: number) {
 
 function Trophies() {
   const { game, data } = useApp()
+  const testDays = allTestDays(data.settings.repeats)
   return (
     <div>
+      <div className="font-pixel text-[12px] tracking-[0.2em] text-accent mb-2">BOSS TROPHIES</div>
+      {game.trophies.length === 0 && <p className="text-sm text-muted mb-3">Beat a boss on a test day to win its trophy.</p>}
+      <div className="grid grid-cols-2 gap-2 mb-4">
+        {game.trophies.map((t) => {
+          const td = testDays.find((x) => x.id === t.testId)
+          return (
+            <div key={t.testId} className="cut-sm bg-panel-2 p-2 flex items-center gap-2">
+              <TrophyCup tier={t.tier} size={36} />
+              <div className="min-w-0">
+                <div className="font-pixel text-[12px] leading-tight truncate">{td?.boss.replace('The ', '').toUpperCase() ?? t.testId}</div>
+                <div className="text-xs text-muted">
+                  {t.tier === 'baseline' ? 'Baseline' : `${t.tier[0].toUpperCase()}${t.tier.slice(1)} · ${t.improved}/${t.compared} better`}
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      <div className="font-pixel text-[12px] tracking-[0.2em] text-accent mb-2">ACHIEVEMENTS</div>
       {game.achievements.map((a) => (
         <div key={a.id} className={`flex items-center gap-3 p-2 mb-2 border-[3px] ${a.unlocked ? 'border-xp bg-panel-2' : 'border-edge opacity-60'}`}>
           <span className={`text-3xl ${a.unlocked ? '' : 'grayscale'}`}>{a.icon}</span>

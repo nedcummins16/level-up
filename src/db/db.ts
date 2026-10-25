@@ -69,6 +69,8 @@ export function defaultSettings(): Settings {
     defaultTimes: { ...DEFAULT_TIMES },
     places: { gym: 'Gym', cardio: '', tennis: 'Tennis courts', beach: 'Beach' },
     lightDismissed: [],
+    seenBuild: null,
+    seenDunk: [],
   }
 }
 

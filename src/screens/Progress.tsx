@@ -11,6 +11,8 @@ import { addDays, fmtDate, fmtShort, mondayOf, type ISODate } from '../lib/dates
 import { allTestDays, programEnd } from '../lib/plan'
 import { BODYWEIGHT_LIKE, epley } from '../lib/progression'
 import { useApp } from '../state/app'
+import { hallOfPRs } from '../lib/growth'
+import { prText } from '../lib/records'
 import { fmtSec } from './Boss'
 
 // Validated categorical slots (dark surface): blue then orange.
@@ -21,28 +23,30 @@ const AXIS = { fill: 'var(--muted)', fontSize: 12, fontFamily: 'var(--font-body)
 
 const legendText = (v: string) => <span style={{ color: 'var(--ink)' }}>{v}</span>
 
-type Sub = 'lifts' | 'body' | 'calendar' | 'tests'
+type Sub = 'lifts' | 'prs' | 'body' | 'calendar' | 'tests'
 
 export function Progress() {
   const [sub, setSub] = useState<Sub>('lifts')
   return (
     <div className="px-3 pt-safe pb-32">
       <div className="font-pixel text-[22px] text-accent mt-2 mb-3">STATS</div>
-      <div className="grid grid-cols-4 gap-1 mb-2">
+      <div className="grid grid-cols-5 gap-1 mb-2">
         {(
           [
-            ['lifts', '🏋️ Lifts'],
-            ['body', '⚖️ Body'],
-            ['calendar', '📅 Log'],
-            ['tests', '👹 Tests'],
+            ['lifts', 'Lifts'],
+            ['prs', 'PRs'],
+            ['body', 'Body'],
+            ['calendar', 'Log'],
+            ['tests', 'Tests'],
           ] as [Sub, string][]
         ).map(([id, label]) => (
-          <button key={id} onClick={() => setSub(id)} className={`h-12 text-sm border-[3px] ${sub === id ? 'bg-accent text-accent-ink border-ink' : 'bg-panel-2 border-edge'}`}>
+          <button key={id} onClick={() => setSub(id)} className={`cut-sm h-11 font-pixel text-[12px] tracking-[0.12em] uppercase ${sub === id ? 'bg-accent text-accent-ink' : 'bg-panel-2 text-muted'}`}>
             {label}
           </button>
         ))}
       </div>
       {sub === 'lifts' && <Lifts />}
+      {sub === 'prs' && <HallOfPRs />}
       {sub === 'body' && <Body />}
       {sub === 'calendar' && <Heatmap />}
       {sub === 'tests' && <TestsTable />}
@@ -165,6 +169,30 @@ function Lifts() {
         </table>
       </Panel>
     </>
+  )
+}
+
+function HallOfPRs() {
+  const { data } = useApp()
+  const hall = useMemo(() => hallOfPRs(data.sessions), [data.sessions])
+  if (!hall.length) return <Panel>Your best set on every exercise will hang here. Finish a session to start the wall.</Panel>
+  return (
+    <Panel>
+      <H>Hall of PRs</H>
+      <p className="text-sm text-muted mb-2">Your best set ever on each exercise.</p>
+      {hall.map((h) => (
+        <div key={h.ex} className="flex items-center gap-3 py-2 border-b border-edge/60">
+          <div className="flex-1 min-w-0">
+            <div className="font-pixel text-[14px] truncate">{h.name.toUpperCase()}</div>
+            <div className="text-xs text-muted">
+              {fmtDate(h.date)}
+              {h.e1rm ? ` · e1RM ${h.e1rm} kg` : ''}
+            </div>
+          </div>
+          <div className="font-pixel text-[17px] text-accent whitespace-nowrap">{prText(h)}</div>
+        </div>
+      ))}
+    </Panel>
   )
 }
 

@@ -6,7 +6,7 @@ import { Character } from './Character'
 /** Sticky rest timer (above the tab bar) with your hero resting, + full-screen flash when rest is over. */
 export function RestTimerBar() {
   const { timer, remaining, add, stop, flashing, dismissFlash } = useTimer()
-  const { data } = useApp()
+  const { data, game } = useApp()
   if (!timer) return null
   const done = remaining <= 0
   const pct = timer.total > 0 ? (remaining / (timer.total * 1000)) * 100 : 0
@@ -15,7 +15,7 @@ export function RestTimerBar() {
       <div className="fixed left-0 right-0 bottom-[67px] z-40 px-3 pb-1" style={{ marginBottom: 'env(safe-area-inset-bottom)' }}>
         <div className={`px-box !my-1 max-w-xl mx-auto bg-panel border border-edge px-3 py-2 flex items-center gap-2 ${done ? 'px-box-accent' : ''}`}>
           <div className={done ? 'anim-bob' : ''}>
-            <Character cosmetics={data.settings.cosmetics} size={64} />
+            <Character cosmetics={data.settings.cosmetics} build={game.physique} size={64} />
           </div>
           <div className="flex-1 min-w-0">
             <div className="font-pixel text-[11px] tracking-[0.22em] text-muted truncate">{done ? 'REST DONE · NEXT SET' : 'RECOVER'}</div>

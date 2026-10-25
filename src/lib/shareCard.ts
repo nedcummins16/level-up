@@ -1,6 +1,7 @@
 // Draws a weekly results card (PNG) to text to a mate. Accountability, free.
 
 import { heroRects } from '../components/Character'
+import type { Build } from './sprite'
 import { fmtShort, addDays, type ISODate } from './dates'
 import type { WeekResult } from './game'
 import { prText } from './records'
@@ -11,6 +12,7 @@ export interface CardInput {
   title: string
   level: number
   cosmetics: Record<string, string>
+  build?: Build
   headline: string
 }
 
@@ -68,17 +70,17 @@ export async function drawWeekCard(input: CardInput): Promise<Blob> {
   g.fillText(`Week ${w.week} · ${fmtShort(w.weekStart)}–${fmtShort(addDays(w.weekStart as ISODate, 6))}`, 96, 166)
 
   // Hero sprite
-  const { rects, aura } = heroRects(input.cosmetics)
-  const scale = 17
-  const hx = 110
-  const hy = 250
+  const { runs, aura } = heroRects(input.cosmetics, input.build)
+  const scale = 14
+  const hx = 70
+  const hy = 240
   if (aura) {
     g.shadowColor = aura
     g.shadowBlur = 40
   }
-  for (const r of rects) {
+  for (const r of runs) {
     g.fillStyle = r.c
-    g.fillRect(hx + r.x * scale, hy + r.y * scale, scale + 0.5, scale + 0.5)
+    g.fillRect(hx + r.x * scale, hy + r.y * scale, r.w * scale + 0.5, scale + 0.5)
   }
   g.shadowBlur = 0
 

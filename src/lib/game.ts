@@ -27,6 +27,7 @@ import { addDays, mondayOf, rangeDays, type ISODate } from './dates'
 import { allTestDays, getPhase, weekNumber } from './plan'
 import { epley } from './progression'
 import { allPRs, type PREvent } from './records'
+import { bestJumpReach, bossTrophies, computeDunk, computePhysique, type BossTrophy, type DunkState, type Physique } from './growth'
 import { isStrengthSlot, type WeekPlan } from './schedule'
 import { earnsStrengthXP } from './xp'
 
@@ -104,6 +105,9 @@ export interface GameState {
   unlocked: Unlockable[]
   nextUnlock: Unlockable | null
   bossesBeaten: string[]
+  physique: Physique
+  dunk: DunkState
+  trophies: BossTrophy[]
 }
 
 const CARDIO_SLOTS = new Set(['cardio', 'tennis', 'intervals', 'sprints', 'beachRun'])
@@ -195,7 +199,7 @@ export function computeStats(input: Pick<GameInput, 'sessions' | 'daily' | 'test
   const toePts = toe === null ? 20 : clamp(((toe - STATS.mobToe.min) / (STATS.mobToe.max - STATS.mobToe.min)) * 70, 0, 70)
   const MOB = Math.round(clamp(toePts + Math.min(29, mStreak), 1))
 
-  const jump = latestTest(tests, 'jumpReach', asOf, 'max')
+  const jump = bestJumpReach(tests, daily, asOf)
   const JMP = jump === null ? 1 : Math.round(clamp(((jump - STATS.jmp.min) / (STATS.jmp.max - STATS.jmp.min)) * 99, 1))
 
   const now = avg7(daily, asOf)
@@ -440,6 +444,9 @@ export function computeGame(input: GameInput): GameState {
     unlocked,
     nextUnlock: UNLOCKABLES.find((u) => u.level > lv.level) ?? null,
     bossesBeaten,
+    physique: computePhysique(daily, (d) => computeStats(input, d).STR, today),
+    dunk: computeDunk(tests, daily),
+    trophies: bossTrophies(tests),
   }
 }
 

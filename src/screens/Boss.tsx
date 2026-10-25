@@ -10,6 +10,7 @@ import type { TestResult } from '../db/types'
 import { avg7 } from '../lib/body'
 import { addDays, fmtDate } from '../lib/dates'
 import { liftBests } from '../lib/game'
+import { bossTrophies } from '../lib/growth'
 import { allTestDays } from '../lib/plan'
 import { useApp } from '../state/app'
 import { useFx } from '../state/fx'
@@ -103,7 +104,13 @@ export function BossBattle({ testId, onDone }: { testId: string; onDone: () => v
       const existing = await db.measurements.where('date').equals(td.date).first()
       await db.measurements.put({ ...(existing ?? {}), date: td.date, arm: results.arm ?? null, chest: results.chest ?? null, waist: results.waist ?? null })
     }
-    fx.celebrate({ kind: 'boss', title: td.boss, sub: 'Results saved. Compare them in Stats → Tests.', icon: td.bossEmoji, xp: res.completedAt ? 0 : XP.boss })
+    const trophy = bossTrophies(await db.tests.toArray()).find((t) => t.testId === testId)
+    const trophyText = !trophy
+      ? ''
+      : trophy.tier === 'baseline'
+        ? 'Baseline trophy won. Next time, beat these numbers.'
+        : `${trophy.tier[0].toUpperCase()}${trophy.tier.slice(1)} trophy: ${trophy.improved}/${trophy.compared} results better than last time.`
+    fx.celebrate({ kind: 'boss', title: td.boss, sub: `${trophyText} Compare in Stats → Tests.`.trim(), icon: td.bossEmoji, xp: res.completedAt ? 0 : XP.boss })
     onDone()
   }
 
