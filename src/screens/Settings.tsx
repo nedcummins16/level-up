@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { AddToCalendar } from '../components/Appointments'
 import { Character } from '../components/Character'
+import { FeelCardView } from '../components/FeelIt'
 import { Btn, H, NumField, Panel, Sheet, Toggle } from '../components/ui'
 import { COSMETICS, THEMES, TITLES } from '../config/game'
 import { EXERCISES, PROGRAM, SESSIONS } from '../config/program'
@@ -24,6 +25,7 @@ export function Settings() {
       <TrainingDays />
       <ScheduleSettings />
       <PermanentSwaps />
+      <ExerciseGuide />
       <MachineSteps />
       <Panel>
         <H>Sound</H>
@@ -324,6 +326,38 @@ function ScheduleSettings() {
 function BlurInput({ value, onSave }: { value: string; onSave: (v: string) => void }) {
   const [v, setV] = useState(value)
   return <input className="px-input !min-h-[44px]" value={v} onChange={(e) => setV(e.target.value)} onBlur={() => v !== value && onSave(v)} />
+}
+
+function ExerciseGuide() {
+  const [open, setOpen] = useState(false)
+  const [ex, setEx] = useState<string | null>(null)
+  const groups = (['LA', 'UA', 'LB', 'UB', 'BA', 'BB'] as const).map((k) => ({ name: SESSIONS[k].name, ids: SESSIONS[k].exercises.flatMap((p) => [p.weekSwap?.ex, p.ex].filter(Boolean) as string[]) }))
+  const inPlan = new Set(groups.flatMap((g) => g.ids))
+  const others = Object.keys(EXERCISES).filter((id) => !inPlan.has(id))
+  return (
+    <Panel>
+      <H>🎯 Exercise guide</H>
+      <p className="text-sm text-muted mb-2">Where you should feel every exercise, and how to fix it when you feel it somewhere else.</p>
+      <Btn variant="ghost" className="w-full" onClick={() => setOpen(!open)}>
+        {open ? 'Hide' : 'Open guide'}
+      </Btn>
+      {open &&
+        [...groups, { name: 'Swaps', ids: others }].map((g) => (
+          <div key={g.name} className="mt-3">
+            <div className="font-pixel text-[9px] text-accent mb-1">{g.name.toUpperCase()}</div>
+            {g.ids.map((id) => (
+              <button key={id} className="w-full text-left py-2 border-b border-edge/40 flex justify-between items-center" onClick={() => setEx(id)}>
+                <span>{EXERCISES[id].name}</span>
+                <span className="text-muted">›</span>
+              </button>
+            ))}
+          </div>
+        ))}
+      <Sheet open={!!ex} onClose={() => setEx(null)} title={ex ? EXERCISES[ex].name : ''}>
+        {ex && <FeelCardView ex={ex} />}
+      </Sheet>
+    </Panel>
+  )
 }
 
 function PermanentSwaps() {

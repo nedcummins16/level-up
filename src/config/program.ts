@@ -118,6 +118,7 @@ export const EXERCISES: Record<string, ExerciseInfo> = {
   dbLateralRaise: { name: 'DB lateral raise', equipment: 'dumbbell', alts: ['cableLateralRaise'] },
   dbCurl: { name: 'DB curl', equipment: 'dumbbell', alts: ['cableCurl', 'hammerCurl'] },
   tricepsPushdown: { name: 'Cable triceps pushdown', equipment: 'machine', alts: ['overheadTricepsExt'] },
+  pallofPress: { name: 'Pallof press', equipment: 'machine', perSide: true, alts: ['bandPallof', 'deadBug'], cue: 'Stand side-on to the cable. Press out, don\'t let it twist you.' },
   // Lower B
   broadJump: { name: 'Broad jump', equipment: 'plyo', alts: ['boxJump'] },
   trapBarDeadlift: { name: 'Trap-bar deadlift', equipment: 'barbell-lower', lift: 'deadlift', alts: ['conventionalDeadlift'] },
@@ -148,6 +149,7 @@ export const EXERCISES: Record<string, ExerciseInfo> = {
   cableCurl: { name: 'Cable curl', equipment: 'machine' },
   gluteBridgeMachine: { name: 'Glute bridge machine', equipment: 'machine' },
   bandPullApart: { name: 'Band pull-apart', equipment: 'bodyweight' },
+  bandPallof: { name: 'Band Pallof press', equipment: 'bodyweight', perSide: true },
   // Beach
   bssBackpack: { name: 'Bulgarian split squat (backpack)', equipment: 'bodyweight', perSide: true },
   bandRow: { name: 'Band row', equipment: 'bodyweight' },
@@ -209,6 +211,7 @@ export const SESSIONS: Record<StrengthSlot, SessionTemplate> = {
       { ex: 'dbLateralRaise', sets: 3, reps: [12, 15], rest: 60 },
       { ex: 'dbCurl', sets: 2, reps: [10, 12], rest: 60 },
       { ex: 'tricepsPushdown', sets: 2, reps: [10, 12], rest: 60 },
+      { ex: 'pallofPress', sets: 3, reps: [10, 10], rest: 60 },
     ],
   },
   LB: {
@@ -241,6 +244,7 @@ export const SESSIONS: Record<StrengthSlot, SessionTemplate> = {
       { ex: 'facePull', sets: 3, reps: [12, 15], rest: 60 },
       { ex: 'hammerCurl', sets: 2, reps: [10, 12], rest: 60 },
       { ex: 'overheadTricepsExt', sets: 2, reps: [10, 12], rest: 60 },
+      { ex: 'sidePlank', sets: 3, reps: [30, 45], rest: 60 },
     ],
   },
   // Busy week: first 2 exercises of Lower B + first 2 of Upper B. Counts as lower.

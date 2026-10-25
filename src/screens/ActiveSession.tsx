@@ -15,6 +15,7 @@ import { deleteSession, finishSession, saveSession } from '../state/actions'
 import { useApp } from '../state/app'
 import { useFx } from '../state/fx'
 import { useTimer } from '../state/timer'
+import { FeelItButton } from '../components/FeelIt'
 import { Badge, Btn, Check, Panel, Sheet } from '../components/ui'
 import { SORE_BACK_SWAPS } from '../config/program'
 
@@ -319,9 +320,10 @@ function ExerciseCard({
             {e.targetSets} × {repsLabel(e.reps, e.perSide, e.equipment === 'timed')} · rest {restLabel(e.rest)}
           </div>
         </div>
-        <button onClick={onSwap} className="shrink-0 h-10 px-2 bg-panel-2 font-pixel text-[9px]" aria-label="Swap exercise">
+        <button onClick={onSwap} className="shrink-0 h-10 px-2 bg-panel-2 font-pixel text-[8px]" aria-label="Swap exercise">
           ⇄ SWAP
         </button>
+        <FeelItButton ex={e.ex} name={e.name} variant="map" />
       </div>
 
       {(e.suggested !== null || e.hint) && (

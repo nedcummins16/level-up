@@ -6,6 +6,7 @@ import type { PlanItem } from '../lib/plan'
 import { buildSession, repsLabel, restLabel } from '../lib/session'
 import { startStrength } from '../state/actions'
 import { useApp } from '../state/app'
+import { FeelItButton } from './FeelIt'
 import { Badge, Btn, Panel } from './ui'
 
 export function StrengthCard({ item, date, preview = false }: { item: PlanItem; date: ISODate; preview?: boolean }) {
@@ -61,10 +62,13 @@ export function StrengthCard({ item, date, preview = false }: { item: PlanItem; 
               .join(', ')
             return (
               <div key={i} className="py-1 border-b border-edge/40">
-                <div className="flex justify-between gap-2">
-                  <span>
-                    {i + 1}. {e.name}
-                    {e.swappedFrom && <span className="text-muted"> (swap)</span>}
+                <div className="flex justify-between gap-2 items-center">
+                  <span className="flex items-center gap-2 min-w-0">
+                    <FeelItButton ex={e.ex} name={e.name} variant="compact" />
+                    <span>
+                      {i + 1}. {e.name}
+                      {e.swappedFrom && <span className="text-muted"> (swap)</span>}
+                    </span>
                   </span>
                   <span className="text-muted whitespace-nowrap">
                     {e.sets}×{repsLabel(e.reps, e.perSide, e.timed)} · {restLabel(e.rest)}

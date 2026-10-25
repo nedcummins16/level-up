@@ -86,3 +86,41 @@ export interface TestDay {
   bossEmoji: string
   items: TestItemId[]
 }
+
+/** Muscles (and joints) shown on the body map. */
+export type MuscleId =
+  | 'chest'
+  | 'frontDelts'
+  | 'sideDelts'
+  | 'rearDelts'
+  | 'traps'
+  | 'upperBack'
+  | 'lats'
+  | 'lowerBack'
+  | 'biceps'
+  | 'triceps'
+  | 'forearms'
+  | 'abs'
+  | 'obliques'
+  | 'hipFlexors'
+  | 'quads'
+  | 'adductors'
+  | 'glutes'
+  | 'hamstrings'
+  | 'calves'
+  | 'shins'
+  // joints / "you shouldn't feel it here" spots
+  | 'neck'
+  | 'knees'
+  | 'wrists'
+  | 'elbows'
+  | 'shoulderJoint'
+
+export interface FeelCard {
+  primary: MuscleId[]
+  secondary?: MuscleId[]
+  /** Where you should feel it working. */
+  feel: string
+  /** Feeling it somewhere else? What it means + the fix. */
+  wrong: { at: MuscleId; means: string; fix: string }[]
+}

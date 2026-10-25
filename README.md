@@ -80,7 +80,7 @@ Your data lives only on your phone, and iOS can delete website data. Every Sunda
 
 ## Change the plan
 
-Everything about the program is in **`src/config/program.ts`**: dates, phases, sessions, sets/reps/rest, warm-up, mobility, tests. The game settings (XP values, levels, titles, unlocks, raids, achievements, stat formulas) are in **`src/config/game.ts`**. Edit a file, `git push`, and tap Update on your phone.
+Everything about the program is in **`src/config/program.ts`**: dates, phases, sessions, sets/reps/rest, warm-up, mobility, tests. The game settings (XP values, levels, titles, unlocks, raids, achievements, stat formulas) are in **`src/config/game.ts`**. The "Feel it here" cards (target muscles, where to feel each exercise, common problems + fixes) are in **`src/config/feel.ts`**. Edit a file, `git push`, and tap Update on your phone.
 
 If you ever change the database structure (`src/db/db.ts`), add a **new** `this.version(2).stores(...)`. Never edit version 1. That way your existing data is migrated, not lost.
 
