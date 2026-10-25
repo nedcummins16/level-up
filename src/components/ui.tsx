@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 
 export function Panel({ children, className = '', accent = false, onClick }: { children: ReactNode; className?: string; accent?: boolean; onClick?: () => void }) {
   return (
@@ -36,7 +37,7 @@ export function Btn({
 }
 
 export function H({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <h2 className={`font-pixel text-[13px] text-accent uppercase mb-2 ${className}`}>{children}</h2>
+  return <h2 className={`font-pixel text-[13px] tracking-[0.22em] text-accent uppercase mb-2 ${className}`}>{children}</h2>
 }
 
 export function Badge({ children, color = 'accent', className = '' }: { children: ReactNode; color?: 'accent' | 'xp' | 'muted' | 'danger' | 'good' | 'accent-2'; className?: string }) {
@@ -48,19 +49,14 @@ export function Badge({ children, color = 'accent', className = '' }: { children
     good: 'bg-good text-black',
     'accent-2': 'bg-accent-2 text-black',
   }
-  return <span className={`inline-block font-pixel text-[9px] px-1.5 py-1 leading-none uppercase ${map[color]} ${className}`}>{children}</span>
+  return <span className={`cut-sm inline-block font-pixel text-[11px] tracking-[0.12em] px-2 py-1.5 leading-none uppercase ${map[color]} ${className}`}>{children}</span>
 }
 
-export function Bar({ value, max, color = 'var(--xp)', height = 14, className = '' }: { value: number; max: number; color?: string; height?: number; className?: string }) {
+export function Bar({ value, max, color = 'var(--accent)', height = 8, className = '' }: { value: number; max: number; color?: string; height?: number; className?: string }) {
   const pct = max > 0 ? Math.max(0, Math.min(100, (value / max) * 100)) : 0
-  // Chunky segmented bar
   return (
-    <div className={`relative bg-bg-2 border-[3px] border-ink/80 ${className}`} style={{ height }}>
+    <div className={`relative bg-panel-2 ${className}`} style={{ height }}>
       <div className="absolute inset-y-0 left-0 transition-[width] duration-500" style={{ width: `${pct}%`, background: color }} />
-      <div
-        className="absolute inset-0"
-        style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent 0 10px, rgb(0 0 0 / 0.35) 10px 12px)' }}
-      />
     </div>
   )
 }
@@ -68,8 +64,8 @@ export function Bar({ value, max, color = 'var(--xp)', height = 14, className = 
 export function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boolean) => void; label?: ReactNode }) {
   return (
     <button type="button" onClick={() => onChange(!on)} className="flex items-center gap-3 min-h-[48px] w-full text-left">
-      <span className={`relative inline-block w-14 h-8 border-[3px] ${on ? 'bg-accent border-ink' : 'bg-bg-2 border-edge'}`}>
-        <span className={`absolute top-0.5 w-5 h-5 bg-ink transition-[left] duration-100 ${on ? 'left-7' : 'left-0.5'}`} />
+      <span className={`cut-sm relative inline-block w-14 h-8 ${on ? 'bg-accent' : 'bg-panel-2'}`}>
+        <span className={`absolute top-1.5 w-5 h-5 transition-[left] duration-100 ${on ? 'left-7 bg-accent-ink' : 'left-1.5 bg-muted'}`} />
       </span>
       {label && <span className="flex-1">{label}</span>}
     </button>
@@ -79,7 +75,7 @@ export function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boo
 export function Check({ on, onChange, children, disabled }: { on: boolean; onChange: (v: boolean) => void; children: ReactNode; disabled?: boolean }) {
   return (
     <button type="button" disabled={disabled} onClick={() => onChange(!on)} className="flex items-center gap-3 min-h-[48px] w-full text-left py-1">
-      <span className={`shrink-0 w-8 h-8 border-[3px] grid place-items-center font-pixel text-xs ${on ? 'bg-accent border-ink text-accent-ink' : 'bg-bg-2 border-edge'}`}>{on ? '✓' : ''}</span>
+      <span className={`cut-sm shrink-0 w-8 h-8 grid place-items-center font-pixel text-sm ${on ? 'bg-good text-accent-ink' : 'bg-panel-2 border-b-2 border-edge'}`}>{on ? '✓' : ''}</span>
       <span className={`flex-1 ${on ? 'text-muted line-through' : ''}`}>{children}</span>
     </button>
   )
@@ -95,21 +91,23 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
     }
   }, [open])
   if (!open) return null
-  return (
+  // Portal to <body>: panels use clip-path, which would otherwise clip the sheet.
+  return createPortal(
     <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/70" onClick={onClose}>
       <div
-        className="anim-slide-up bg-panel border-t-4 border-accent max-h-[88vh] overflow-y-auto pb-safe"
+        className="anim-slide-up bg-panel border-t-[3px] border-accent max-h-[88vh] overflow-y-auto pb-safe"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 bg-panel flex items-center justify-between px-4 py-3 border-b-4 border-edge z-10">
-          <div className="font-pixel text-[12px] text-accent uppercase">{title}</div>
-          <button onClick={onClose} className="font-pixel text-sm w-11 h-11 grid place-items-center bg-panel-2" aria-label="Close">
+        <div className="sticky top-0 bg-panel flex items-center justify-between px-4 py-3 border-b border-edge z-10">
+          <div className="font-pixel text-[16px] text-accent uppercase">{title}</div>
+          <button onClick={onClose} className="cut-sm font-pixel text-sm w-11 h-11 grid place-items-center bg-panel-2" aria-label="Close">
             ✕
           </button>
         </div>
         <div className="p-4">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 
@@ -161,7 +159,7 @@ export function Stars({ value, onChange, max = 5, label }: { value: number; onCh
             key={n}
             type="button"
             onClick={() => onChange(n)}
-            className={`flex-1 h-12 font-pixel text-sm border-[3px] ${n <= value ? 'bg-xp text-black border-ink' : 'bg-bg-2 border-edge text-muted'}`}
+            className={`cut-sm flex-1 h-12 font-pixel text-base ${n <= value ? 'bg-accent text-accent-ink' : 'bg-panel-2 text-muted'}`}
           >
             {n}
           </button>

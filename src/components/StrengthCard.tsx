@@ -23,7 +23,7 @@ export function StrengthCard({ item, date, preview = false }: { item: PlanItem; 
       <div className="flex items-start gap-3">
         <div className="text-3xl">{icon}</div>
         <div className="flex-1 min-w-0">
-          <div className="font-pixel text-[13px] text-accent leading-relaxed">{item.label.toUpperCase()}</div>
+          <div className="font-pixel text-[18px] text-accent leading-relaxed">{item.label.toUpperCase()}</div>
           <div className="text-sm text-muted">
             {plan.exercises.length} exercises · {plan.phaseName} · Week {plan.week}
             {item.movedFrom && <> · moved from {fmtDay(item.movedFrom)}</>}
@@ -50,11 +50,11 @@ export function StrengthCard({ item, date, preview = false }: { item: PlanItem; 
       </button>
       {open && (
         <div className="text-sm space-y-1 mb-2">
-          <div className="text-muted font-pixel text-[9px] mt-1">WARM-UP</div>
+          <div className="text-muted font-pixel text-[12px] mt-1">WARM-UP</div>
           {plan.warmup.map((w) => (
             <div key={w}>· {w}</div>
           ))}
-          <div className="text-muted font-pixel text-[9px] mt-3">EXERCISES</div>
+          <div className="text-muted font-pixel text-[12px] mt-3">EXERCISES</div>
           {plan.exercises.map((e, i) => {
             const lastText = e.last?.ex.sets
               .filter((x) => x.done)

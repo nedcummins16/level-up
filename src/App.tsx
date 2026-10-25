@@ -17,12 +17,12 @@ import { Week } from './screens/Week'
 
 const Progress = lazy(() => import('./screens/Progress').then((m) => ({ default: m.Progress })))
 
-const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: 'home', label: 'Hero', icon: '🛡️' },
-  { id: 'today', label: 'Today', icon: '⚔️' },
-  { id: 'week', label: 'Week', icon: '📜' },
-  { id: 'progress', label: 'Stats', icon: '📈' },
-  { id: 'settings', label: 'More', icon: '⚙️' },
+const TABS: { id: Tab; label: string }[] = [
+  { id: 'home', label: 'Hero' },
+  { id: 'today', label: 'Today' },
+  { id: 'week', label: 'Week' },
+  { id: 'progress', label: 'Stats' },
+  { id: 'settings', label: 'More' },
 ]
 
 export default function App() {
@@ -88,7 +88,7 @@ function Shell() {
   return (
     <div className="min-h-screen max-w-xl mx-auto">
       {data.settings.timeTravel && (
-        <div className="bg-accent-2 text-black text-center text-xs font-pixel py-1 pt-safe">⏳ TIME TRAVEL: {fmtDate(today)}</div>
+        <div className="bg-accent-2 text-black text-center text-xs font-pixel tracking-[0.15em] py-1 pt-safe">TIME TRAVEL · {fmtDate(today)}</div>
       )}
       <main>
         {tab === 'home' && <Home />}
@@ -103,19 +103,17 @@ function Shell() {
       </main>
       <RestTimerBar />
       <GameWatcher />
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-bg-2 border-t-4 border-edge pb-safe">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-bg border-t border-edge pb-safe">
         <div className="max-w-xl mx-auto grid grid-cols-5">
           {TABS.map((t) => (
             <button
               key={t.id}
               onClick={() => go(t.id)}
-              className={`h-[64px] flex flex-col items-center justify-center gap-1 ${tab === t.id ? 'bg-panel text-accent' : 'text-muted'}`}
+              aria-current={tab === t.id ? 'page' : undefined}
+              className={`relative h-[64px] flex items-center justify-center font-pixel text-[12px] tracking-[0.16em] uppercase border-t-[3px] ${tab === t.id ? 'text-ink border-accent' : 'text-muted border-transparent'}`}
             >
-              <span className="text-xl leading-none relative">
-                {t.icon}
-                {t.id === 'today' && active && <span className="absolute -top-1 -right-2 w-2.5 h-2.5 bg-accent anim-blink" />}
-              </span>
-              <span className="font-pixel text-[8px] uppercase">{t.label}</span>
+              {t.label}
+              {t.id === 'today' && active && <span className="absolute top-3 right-3 w-2 h-2 bg-accent anim-blink" aria-label="Workout in progress" />}
             </button>
           ))}
         </div>

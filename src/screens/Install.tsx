@@ -27,7 +27,7 @@ export function InstallGate({ children }: { children: React.ReactNode }) {
       <div className="max-w-md mx-auto p-5">
         <div className="text-center mt-6 mb-6">
           <img src={`${import.meta.env.BASE_URL}pwa-192x192.png`} alt="" className="w-24 h-24 mx-auto pixelated mb-4" />
-          <div className="font-pixel text-[20px] text-accent">LEVEL UP</div>
+          <div className="font-pixel text-[27px] text-accent">LEVEL UP</div>
           <div className="text-muted mt-2">Install it to play full-screen and offline.</div>
         </div>
         <InstallGuide />

@@ -66,14 +66,14 @@ export interface Unlockable {
 }
 
 export const THEMES: { id: string; name: string; level: number }[] = [
-  { id: 'arcade', name: 'Arcade', level: 1 },
+  { id: 'arcade', name: 'Ember', level: 1 },
   { id: 'lava', name: 'Lava', level: 3 },
-  { id: 'ocean', name: 'Ocean', level: 6 },
-  { id: 'forest', name: 'Forest', level: 9 },
+  { id: 'ocean', name: 'Cyan', level: 6 },
+  { id: 'forest', name: 'Toxic', level: 9 },
   { id: 'court', name: 'Court', level: 12 },
-  { id: 'synth', name: 'Synthwave', level: 15 },
-  { id: 'ice', name: 'Ice', level: 18 },
-  { id: 'gold', name: 'Champion Gold', level: 21 },
+  { id: 'synth', name: 'Neon', level: 15 },
+  { id: 'ice', name: 'Frost', level: 18 },
+  { id: 'gold', name: 'Champion', level: 21 },
 ]
 
 export const COSMETICS: Unlockable[] = [

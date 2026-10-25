@@ -24,7 +24,7 @@ export function CoachBanners() {
           <div className="flex items-center gap-3">
             <span className="text-4xl anim-bob">🔥</span>
             <div className="flex-1">
-              <div className="font-pixel text-[11px] text-flame leading-relaxed">COMEBACK QUEST</div>
+              <div className="font-pixel text-[15px] text-flame leading-relaxed">COMEBACK QUEST</div>
               <div className="text-sm">
                 Missed {fmtDay(missed)}? No stress: the rule is never miss twice. Train today for a <b>+{COMEBACK.bonus} XP comeback bonus</b>.
               </div>
@@ -34,7 +34,7 @@ export function CoachBanners() {
       )}
       {light && (
         <Panel accent>
-          <div className="font-pixel text-[11px] text-accent-2 mb-1">😮‍💨 COACH SAYS</div>
+          <div className="font-pixel text-[15px] text-accent-2 mb-1">😮‍💨 COACH SAYS</div>
           <p className="text-sm mb-3">Two rough check-ins in a row (low energy, poor sleep or very sore). A light week now (half sets) beats a forced week off later. Your streak still counts.</p>
           <div className="flex gap-2">
             <Btn small className="flex-1" onClick={() => void addLife('runDown', today)}>

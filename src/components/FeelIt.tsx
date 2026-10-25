@@ -29,11 +29,11 @@ export function FeelCardView({ ex }: { ex: string }) {
         ))}
       </div>
       <div className="bg-bg-2 border-l-4 border-accent p-3 mt-2">
-        <div className="font-pixel text-[9px] text-accent mb-1">✅ FEEL IT HERE</div>
+        <div className="font-pixel text-[12px] text-accent mb-1">✅ FEEL IT HERE</div>
         <p className="text-sm">{card.feel}</p>
         {info?.cue && <p className="text-sm text-muted mt-1">💡 {info.cue}</p>}
       </div>
-      <div className="font-pixel text-[9px] text-danger mt-4 mb-2">⚠️ FEEL IT SOMEWHERE ELSE?</div>
+      <div className="font-pixel text-[12px] text-danger mt-4 mb-2">⚠️ FEEL IT SOMEWHERE ELSE?</div>
       {card.wrong.map((w, i) => (
         <button
           key={i}
@@ -67,14 +67,14 @@ export function FeelItButton({ ex, name, variant = 'button' }: { ex: string; nam
         className={
           variant === 'map'
             ? 'shrink-0 bg-bg-2 border-[3px] border-edge px-1 pt-1 flex flex-col items-center'
-            : `shrink-0 bg-panel-2 font-pixel ${variant === 'compact' ? 'h-8 px-2 text-[8px]' : 'h-10 px-2 text-[9px]'}`
+            : `shrink-0 bg-panel-2 font-pixel ${variant === 'compact' ? 'h-8 px-2 text-[11px]' : 'h-10 px-2 text-[12px]'}`
         }
         aria-label={`Where to feel ${name}`}
       >
         {variant === 'map' ? (
           <>
             <MuscleMap primary={card.primary} secondary={card.secondary} size={58} />
-            <span className="font-pixel text-[7px] text-accent mt-0.5 mb-0.5">🎯 FEEL IT</span>
+            <span className="font-pixel text-[9px] text-accent mt-0.5 mb-0.5">🎯 FEEL IT</span>
           </>
         ) : (
           '🎯 FEEL'

@@ -44,7 +44,7 @@ export function Week() {
           ◀
         </button>
         <div className="flex-1 text-center">
-          <div className="font-pixel text-[13px] text-accent">{ws < PROGRAM.start ? 'PRE-SEASON' : `WEEK ${weekNumber(ws)}`}</div>
+          <div className="font-pixel text-[18px] text-accent">{ws < PROGRAM.start ? 'PRE-SEASON' : `WEEK ${weekNumber(ws)}`}</div>
           <div className="text-sm text-muted">
             {fmtShort(ws)}–{fmtShort(end)} · {phase.name}
           </div>
@@ -63,8 +63,8 @@ export function Week() {
         <Panel accent={wr.complete}>
           <div className="flex items-center justify-between">
             <div>
-              <div className="font-pixel text-[10px] text-muted">STREAK TARGET</div>
-              <div className="font-pixel text-[18px] mt-1">
+              <div className="font-pixel text-[14px] text-muted">STREAK TARGET</div>
+              <div className="font-pixel text-[24px] mt-1">
                 {wr.done}/{wr.required}
                 <span className="text-muted text-[11px]"> of {wr.planned} planned</span>
               </div>
@@ -80,7 +80,7 @@ export function Week() {
           <div key={d.date} className={`py-2 border-b border-edge/40 ${d.date === today ? 'bg-panel-2 -mx-3 px-3' : ''}`}>
             <div className="flex gap-3">
               <div className="w-12 shrink-0">
-                <div className={`font-pixel text-[10px] ${d.date === today ? 'text-accent' : 'text-muted'}`}>{dayName(d.date).toUpperCase()}</div>
+                <div className={`font-pixel text-[14px] ${d.date === today ? 'text-accent' : 'text-muted'}`}>{dayName(d.date).toUpperCase()}</div>
                 <div className="text-xs text-muted">{fmtShort(d.date)}</div>
               </div>
               <div className="flex-1 min-w-0">
@@ -88,7 +88,7 @@ export function Week() {
                   const st = status(d.date, i.slot, i.kind, i.testId)
                   return (
                     <div key={k} className={`flex gap-2 items-center ${st === 'missed' ? 'text-danger/80' : st === 'rest' ? 'text-muted' : ''}`}>
-                      <span className="font-pixel text-[10px] w-4">{st === 'done' ? '✓' : st === 'missed' ? '✗' : st === 'rest' ? '·' : '▸'}</span>
+                      <span className="font-pixel text-[14px] w-4">{st === 'done' ? '✓' : st === 'missed' ? '✗' : st === 'rest' ? '·' : '▸'}</span>
                       <span className={st === 'done' ? 'text-good' : ''}>
                         {i.label}
                         {i.movedFrom && <span className="text-xs text-muted"> (moved from {dayName(i.movedFrom)})</span>}
@@ -117,7 +117,7 @@ export function Week() {
 
       {canCheckin && (
         <Panel accent>
-          <div className="font-pixel text-[11px] text-xp mb-2">📋 SUNDAY CHECK-IN</div>
+          <div className="font-pixel text-[15px] text-xp mb-2">📋 SUNDAY CHECK-IN</div>
           <p className="text-sm mb-3">Review the week, log your Garmin numbers, back up your data. +{XP.checkin} XP.</p>
           <Btn variant="gold" className="w-full" onClick={() => setCheckin(true)}>
             Start check-in
@@ -246,11 +246,11 @@ function CheckInForm({ weekStart, onDone }: { weekStart: ISODate; onDone: () => 
       <div className="grid grid-cols-2 gap-2 mb-4">
         <div className="bg-bg-2 p-3 text-center">
           <div className="text-xs text-muted">Avg weight</div>
-          <div className="font-pixel text-[14px] mt-1">{avg ?? '–'} kg</div>
+          <div className="font-pixel text-[19px] mt-1">{avg ?? '–'} kg</div>
         </div>
         <div className="bg-bg-2 p-3 text-center">
           <div className="text-xs text-muted">Sessions</div>
-          <div className="font-pixel text-[14px] mt-1">
+          <div className="font-pixel text-[19px] mt-1">
             {wr?.done ?? 0}/{wr?.planned ?? 6}
           </div>
         </div>
@@ -269,7 +269,7 @@ function CheckInForm({ weekStart, onDone }: { weekStart: ISODate; onDone: () => 
 
       {draft.length > 0 && (
         <div className="bg-bg-2 border-[3px] border-accent p-3 mb-4">
-          <div className="font-pixel text-[10px] text-accent mb-1">🗓️ PLAN NEXT WEEK</div>
+          <div className="font-pixel text-[14px] text-accent mb-1">🗓️ PLAN NEXT WEEK</div>
           <p className="text-sm text-muted mb-1">When and where will you train? People who decide this in advance turn up way more often.</p>
           <WeekPlanner draft={draft} setDraft={setDraft} />
           <Toggle on={addCal} onChange={setAddCal} label={<span className="text-sm">Add to my Calendar with reminders (8pm the night before + 1 hour before)</span>} />
@@ -277,7 +277,7 @@ function CheckInForm({ weekStart, onDone }: { weekStart: ISODate; onDone: () => 
       )}
 
       <div className="bg-bg-2 border-[3px] border-xp p-3 mb-4">
-        <div className="font-pixel text-[10px] text-xp mb-1">💾 BACKUP REMINDER</div>
+        <div className="font-pixel text-[14px] text-xp mb-1">💾 BACKUP REMINDER</div>
         <p className="text-sm text-muted mb-2">
           iPhone can clear website data. Save a backup to Files / iCloud Drive every Sunday.
           {last ? ` Last backup: ${fmtDate(new Date(last).toISOString().slice(0, 10))}.` : ' No backup yet!'}

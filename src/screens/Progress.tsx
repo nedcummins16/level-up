@@ -27,7 +27,7 @@ export function Progress() {
   const [sub, setSub] = useState<Sub>('lifts')
   return (
     <div className="px-3 pt-safe pb-32">
-      <div className="font-pixel text-[16px] text-accent mt-2 mb-3">STATS</div>
+      <div className="font-pixel text-[22px] text-accent mt-2 mb-3">STATS</div>
       <div className="grid grid-cols-4 gap-1 mb-2">
         {(
           [
@@ -330,13 +330,13 @@ function Heatmap() {
       <div className="grid grid-cols-[34px_repeat(7,1fr)] gap-1 text-center">
         <span />
         {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
-          <span key={i} className="font-pixel text-[9px] text-muted">
+          <span key={i} className="font-pixel text-[12px] text-muted">
             {d}
           </span>
         ))}
         {weeks.map((w, wi) => (
           <div key={w} className="contents">
-            <span className="font-pixel text-[8px] text-muted self-center">W{wi + 1}</span>
+            <span className="font-pixel text-[11px] text-muted self-center">W{wi + 1}</span>
             {Array.from({ length: 7 }, (_, i) => {
               const d = addDays(w, i)
               const n = Math.min(3, countOn(d))
@@ -370,7 +370,7 @@ function Heatmap() {
       </div>
       {sel && (
         <div className="mt-3 p-2 bg-bg-2 text-sm">
-          <div className="font-pixel text-[10px] text-accent mb-1">{fmtDate(sel)}</div>
+          <div className="font-pixel text-[14px] text-accent mb-1">{fmtDate(sel)}</div>
           {countOn(sel) ? (
             <>
               {doneOn(sel).map((s) => (

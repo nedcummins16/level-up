@@ -64,7 +64,7 @@ export function FxProvider({ children }: { children: ReactNode }) {
       {children}
       <div className="pointer-events-none fixed inset-0 z-[70]">
         {floaters.map((f) => (
-          <div key={f.id} className="anim-float absolute font-pixel text-[14px] text-xp drop-shadow-[2px_2px_0_#000]" style={{ left: `${f.x}%`, top: '45%' }}>
+          <div key={f.id} className="anim-float absolute font-pixel text-[19px] text-xp drop-shadow-[2px_2px_0_#000]" style={{ left: `${f.x}%`, top: '45%' }}>
             {f.text}
           </div>
         ))}
@@ -84,12 +84,12 @@ function CelebrationOverlay({ c, onDone }: { c: Celebration; onDone: () => void 
           style={{ background: 'repeating-conic-gradient(var(--xp) 0deg 10deg, transparent 10deg 30deg)', borderRadius: '50%' }}
         />
         <div className="px-box px-box-accent anim-pop relative p-6 text-center">
-          <div className="font-pixel text-[18px] text-xp mb-4 anim-blink">{heading}</div>
+          <div className="font-pixel text-[24px] text-xp mb-4 anim-blink">{heading}</div>
           {c.icon && <div className="text-6xl mb-3 anim-bob">{c.icon}</div>}
-          <div className="font-pixel text-[13px] text-ink mb-2 leading-relaxed">{c.title}</div>
+          <div className="font-pixel text-[18px] text-ink mb-2 leading-relaxed">{c.title}</div>
           {c.sub && <div className="text-muted mb-3">{c.sub}</div>}
-          {c.xp ? <div className="font-pixel text-[14px] text-accent mb-4">+{c.xp} XP</div> : null}
-          <div className="font-pixel text-[10px] text-muted">TAP TO CONTINUE</div>
+          {c.xp ? <div className="font-pixel text-[19px] text-accent mb-4">+{c.xp} XP</div> : null}
+          <div className="font-pixel text-[14px] text-muted">TAP TO CONTINUE</div>
         </div>
       </div>
     </div>

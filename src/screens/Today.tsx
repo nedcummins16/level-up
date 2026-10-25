@@ -29,8 +29,8 @@ export function Today() {
   return (
     <div className="px-3 pt-safe pb-32">
       <header className="mb-2 pt-1">
-        <div className="font-pixel text-[11px] text-muted">{fmtDay(today).toUpperCase()}</div>
-        <div className="font-pixel text-[16px] text-accent mt-1">TODAY'S QUEST</div>
+        <div className="font-pixel text-[15px] text-muted">{fmtDay(today).toUpperCase()}</div>
+        <div className="font-pixel text-[22px] text-accent mt-1">TODAY'S QUEST</div>
         <div className="text-sm text-muted mt-1">
           Week {weekNumber(today)} · {phase.name}
           {phase.cycle ? ` #${phase.cycle}` : ''} · {phase.rir !== '-' ? phase.rir : ''}
@@ -43,7 +43,7 @@ export function Today() {
 
       {xmasWeek && data.settings.christmasMove === null && (
         <Panel accent>
-          <div className="font-pixel text-[11px] text-xp mb-2">🎄 CHRISTMAS</div>
+          <div className="font-pixel text-[15px] text-xp mb-2">🎄 CHRISTMAS</div>
           <p className="mb-3">Christmas is Fri 25 Dec (Upper B day). Move Upper B to Sat 26 Dec instead of tennis/intervals?</p>
           <div className="flex gap-2">
             <Btn className="flex-1" onClick={() => void updateSettings({ christmasMove: 'move' })}>
@@ -62,7 +62,7 @@ export function Today() {
         if (item.kind === 'rest')
           return (
             <Panel key={i}>
-              <div className="font-pixel text-[13px] text-accent-2">😌 {item.label.toUpperCase()}</div>
+              <div className="font-pixel text-[18px] text-accent-2">😌 {item.label.toUpperCase()}</div>
               <p className="text-sm text-muted mt-1">
                 {weekday(today) === 7 ? 'Recovery day. Do your mobility for the Recovery quest, then the Sunday check-in.' : 'Rest is where the gains happen. Mobility still counts!'}
               </p>
@@ -83,7 +83,7 @@ export function Today() {
 
       {weekday(today) === 7 && !data.checkins.some((c) => c.weekStart === mondayOf(today)) && (
         <Panel accent>
-          <div className="font-pixel text-[11px] text-xp mb-2">📋 SUNDAY CHECK-IN</div>
+          <div className="font-pixel text-[15px] text-xp mb-2">📋 SUNDAY CHECK-IN</div>
           <p className="text-sm mb-3">Review your week, log Garmin numbers and back up your data.</p>
           <Btn variant="gold" className="w-full" onClick={() => app.go('week')}>
             Go to check-in
@@ -111,9 +111,9 @@ function PreStart() {
   return (
     <div className="px-3 pt-safe pb-32">
       <Panel accent className="text-center py-6 mt-2">
-        <div className="font-pixel text-[11px] text-muted mb-3">THE QUEST BEGINS IN</div>
-        <div className="font-pixel text-[44px] text-xp anim-bob">{days}</div>
-        <div className="font-pixel text-[12px] text-accent mt-2">{days === 1 ? 'DAY' : 'DAYS'}</div>
+        <div className="font-pixel text-[15px] text-muted mb-3">THE QUEST BEGINS IN</div>
+        <div className="font-pixel text-[59px] text-xp anim-bob">{days}</div>
+        <div className="font-pixel text-[16px] text-accent mt-2">{days === 1 ? 'DAY' : 'DAYS'}</div>
         <div className="text-muted mt-3">Week 1 starts Mon {fmtDate(PROGRAM.start)}</div>
       </Panel>
 
@@ -163,7 +163,7 @@ function PostProgram() {
     <div className="px-3 pt-safe pb-32">
       <Panel accent className="text-center py-6 mt-2">
         <div className="text-5xl mb-3">🏆</div>
-        <div className="font-pixel text-[14px] text-xp mb-3">CAMPAIGN COMPLETE</div>
+        <div className="font-pixel text-[19px] text-xp mb-3">CAMPAIGN COMPLETE</div>
         <p className="mb-4">12 weeks done. Want to run it back? Repeat the Push phase ({PROGRAM.repeatWeeks} weeks + a test week) with your current weights.</p>
         <Btn
           variant="gold"

@@ -23,7 +23,7 @@ function css(name: string, fallback: string) {
 }
 
 export async function drawWeekCard(input: CardInput): Promise<Blob> {
-  await Promise.all([document.fonts.load('40px "Press Start 2P"'), document.fonts.load('40px "Pixelify Sans"')]).catch(() => {})
+  await Promise.all([document.fonts.load('700 40px "Chakra Petch"'), document.fonts.load('400 40px "Chakra Petch"')]).catch(() => {})
   const c = document.createElement('canvas')
   c.width = W
   c.height = H
@@ -31,25 +31,33 @@ export async function drawWeekCard(input: CardInput): Promise<Blob> {
   g.imageSmoothingEnabled = false
   const bg = css('--bg', '#0d0b1e')
   const panel = css('--panel', '#1d1940')
-  const edge = css('--edge', '#4b3fa0')
   const ink = css('--ink', '#f4f1ff')
   const muted = css('--muted', '#a49cd6')
   const accent = css('--accent', '#7cff4f')
   const accent2 = css('--accent-2', '#ff4fd8')
   const xp = css('--xp', '#ffd23f')
   const flame = css('--flame', '#ff8a1f')
-  const pixel = (px: number) => `${px}px "Press Start 2P", monospace`
-  const body = (px: number) => `${px}px "Pixelify Sans", system-ui, sans-serif`
+  const pixel = (px: number) => `700 ${Math.round(px * 1.35)}px "Chakra Petch", system-ui, sans-serif`
+  const body = (px: number) => `400 ${px}px "Chakra Petch", system-ui, sans-serif`
   const { week: w } = input
 
   // Background + notched pixel panel
   g.fillStyle = bg
   g.fillRect(0, 0, W, H)
-  g.fillStyle = edge
-  g.fillRect(48, 36, W - 96, H - 72)
-  g.fillRect(36, 48, W - 72, H - 96)
+  // Angled-corner HUD panel
+  const cut = 40
   g.fillStyle = panel
-  g.fillRect(48, 48, W - 96, H - 96)
+  g.beginPath()
+  g.moveTo(40, 40)
+  g.lineTo(W - 40 - cut, 40)
+  g.lineTo(W - 40, 40 + cut)
+  g.lineTo(W - 40, H - 40)
+  g.lineTo(40 + cut, H - 40)
+  g.lineTo(40, H - 40 - cut)
+  g.closePath()
+  g.fill()
+  g.fillStyle = accent
+  g.fillRect(40, 40, 10, H - 80 - cut)
 
   g.textBaseline = 'top'
   g.fillStyle = accent

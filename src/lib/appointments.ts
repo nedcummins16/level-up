@@ -17,7 +17,7 @@ export function defaultPlace(items: PlanItem[], settings: Pick<Settings, 'places
   if (!main) return ''
   if (main.kind === 'strength') return SESSIONS[main.slot as StrengthSlot]?.kind === 'beach' ? settings.places.beach : settings.places.gym
   if (main.kind === 'tennis') return settings.places.tennis
-  if (main.kind === 'test') return settings.places.gym
+  if (main.kind === 'test') return /5 km/.test(main.label) ? settings.places.cardio : settings.places.gym
   return settings.places.cardio
 }
 

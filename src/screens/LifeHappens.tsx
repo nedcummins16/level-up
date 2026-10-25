@@ -40,7 +40,7 @@ export function LifeHappensButton() {
                 >
                   <span className="text-2xl">{o.emoji}</span>
                   <span>
-                    <span className="block font-pixel text-[10px] text-accent leading-relaxed">{o.title.toUpperCase()}</span>
+                    <span className="block font-pixel text-[14px] text-accent leading-relaxed">{o.title.toUpperCase()}</span>
                     <span className="block text-sm text-muted">{active.has(o.type) ? 'Already active' : o.desc}</span>
                   </span>
                 </button>
@@ -117,7 +117,7 @@ export function LifeBanners() {
             <div className="flex items-center gap-3">
               <span className="text-2xl">{o?.emoji}</span>
               <div className="flex-1 min-w-0">
-                <div className="font-pixel text-[10px] text-accent-2 leading-relaxed">{o?.title.toUpperCase()}</div>
+                <div className="font-pixel text-[14px] text-accent-2 leading-relaxed">{o?.title.toUpperCase()}</div>
                 <div className="text-xs text-muted">{isOngoing ? `since ${fmtDay(e.start)}` : e.start === e.end ? 'today' : `until ${fmtDay(e.end!)}`}</div>
               </div>
               {isOngoing ? (

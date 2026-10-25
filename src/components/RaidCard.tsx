@@ -33,8 +33,8 @@ export function RaidCard({ week }: { week?: WeekResult | null }) {
           <ChestPixel open={r.opened} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-pixel text-[9px] text-muted">WEEKLY RAID</div>
-          <div className="font-pixel text-[11px] text-accent-2 leading-relaxed">{r.name.toUpperCase()}</div>
+          <div className="font-pixel text-[12px] text-muted">WEEKLY RAID</div>
+          <div className="font-pixel text-[15px] text-accent-2 leading-relaxed">{r.name.toUpperCase()}</div>
           <div className="text-sm text-muted">{r.desc}</div>
         </div>
         <Badge color={r.done ? 'good' : 'muted'}>{r.done ? '✓' : r.progress}</Badge>

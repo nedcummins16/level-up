@@ -2,7 +2,7 @@ import { combinePresetAndAppleSplashScreens, defineConfig, type Preset } from '@
 
 // Generates app icons + iPhone splash screens from public/icon.svg.
 // Run once with: npm run generate-assets (output goes to public/, commit it).
-const BG = '#0d0b1e'
+const BG = '#0b0d10'
 
 const preset: Preset = {
   transparent: { sizes: [64, 192, 512], favicons: [[48, 'favicon.ico']], padding: 0 },

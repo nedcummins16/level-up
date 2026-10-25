@@ -108,7 +108,7 @@ export function MuscleMap({ primary, secondary = [], warn = null, size = 190 }: 
       {(['front', 'back'] as const).map((side) => (
         <div key={side} className="flex flex-col items-center">
           <View side={side} primary={primary} secondary={secondary} warn={warn} height={h} />
-          {labels && <span className="font-pixel text-[8px] text-muted mt-1">{side.toUpperCase()}</span>}
+          {labels && <span className="font-pixel text-[11px] text-muted mt-1">{side.toUpperCase()}</span>}
         </div>
       ))}
     </div>

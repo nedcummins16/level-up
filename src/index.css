@@ -1,135 +1,32 @@
 @import 'tailwindcss';
 
 /* ---- Colour themes (unlocked by levelling up). Always dark. ---- */
+/* ---- HUD colour themes. One slate base; the unlockable themes change the highlight. ---- */
 :root,
-[data-theme='arcade'] {
-  --bg: #0d0b1e;
-  --bg-2: #15122e;
-  --panel: #1d1940;
-  --panel-2: #2a2459;
-  --edge: #4b3fa0;
-  --ink: #f4f1ff;
-  --muted: #a49cd6;
-  --accent: #7cff4f;
-  --accent-ink: #0d0b1e;
-  --accent-2: #ff4fd8;
+[data-theme] {
+  --bg: #0b0d10;
+  --bg-2: #101317;
+  --panel: #14181d;
+  --panel-2: #1c2128;
+  --edge: #262d36;
+  --ink: #e8edf2;
+  --muted: #8a96a3;
+  --accent: #ff6a2b;
+  --accent-ink: #0b0d10;
+  --accent-2: #3ad1ff;
   --xp: #ffd23f;
   --danger: #ff5a5a;
-  --good: #3dffb0;
-  --flame: #ff8a1f;
+  --good: #3ad1ff;
+  --flame: #ffb03b;
+  --glow: rgba(255, 106, 43, 0.28);
 }
-[data-theme='lava'] {
-  --bg: #170806;
-  --bg-2: #22100b;
-  --panel: #2e1510;
-  --panel-2: #43201a;
-  --edge: #8a3220;
-  --ink: #fff2ea;
-  --muted: #d8a493;
-  --accent: #ff7a1a;
-  --accent-ink: #170806;
-  --accent-2: #ffd23f;
-  --xp: #ffe066;
-  --danger: #ff4040;
-  --good: #8dff5a;
-  --flame: #ff4f1f;
-}
-[data-theme='ocean'] {
-  --bg: #04111c;
-  --bg-2: #08192a;
-  --panel: #0d2438;
-  --panel-2: #12344f;
-  --edge: #1f6a9a;
-  --ink: #eaf8ff;
-  --muted: #8fbad4;
-  --accent: #34e0ff;
-  --accent-ink: #04111c;
-  --accent-2: #ffe066;
-  --xp: #ffd23f;
-  --danger: #ff6b6b;
-  --good: #5dffc1;
-  --flame: #ff9f43;
-}
-[data-theme='court'] {
-  --bg: #120c06;
-  --bg-2: #1c130a;
-  --panel: #2a1c0e;
-  --panel-2: #3c2914;
-  --edge: #b5651d;
-  --ink: #fff6e8;
-  --muted: #d9b48a;
-  --accent: #ff9b2f;
-  --accent-ink: #120c06;
-  --accent-2: #ffffff;
-  --xp: #ffd23f;
-  --danger: #ff5a5a;
-  --good: #8bff6a;
-  --flame: #ff6a00;
-}
-[data-theme='forest'] {
-  --bg: #07130b;
-  --bg-2: #0c1d12;
-  --panel: #12291a;
-  --panel-2: #1a3a25;
-  --edge: #2f7a46;
-  --ink: #ecffef;
-  --muted: #9cc9a6;
-  --accent: #b7ff3c;
-  --accent-ink: #07130b;
-  --accent-2: #ffd23f;
-  --xp: #ffe066;
-  --danger: #ff6b6b;
-  --good: #4dffa6;
-  --flame: #ff9f1c;
-}
-[data-theme='synth'] {
-  --bg: #10021c;
-  --bg-2: #1a0530;
-  --panel: #250a44;
-  --panel-2: #36105f;
-  --edge: #b026ff;
-  --ink: #fff0ff;
-  --muted: #c99ae6;
-  --accent: #ff2bd6;
-  --accent-ink: #10021c;
-  --accent-2: #2bf5ff;
-  --xp: #ffe94f;
-  --danger: #ff5a5a;
-  --good: #2bffa6;
-  --flame: #ff6ad5;
-}
-[data-theme='gold'] {
-  --bg: #0f0d05;
-  --bg-2: #19160a;
-  --panel: #262110;
-  --panel-2: #372f17;
-  --edge: #c9a227;
-  --ink: #fffbe8;
-  --muted: #d9c98f;
-  --accent: #ffd23f;
-  --accent-ink: #0f0d05;
-  --accent-2: #ffffff;
-  --xp: #fff3a0;
-  --danger: #ff5a5a;
-  --good: #8bff6a;
-  --flame: #ffb01f;
-}
-[data-theme='ice'] {
-  --bg: #050b14;
-  --bg-2: #0a1424;
-  --panel: #111f36;
-  --panel-2: #1a2d4d;
-  --edge: #7fb8ff;
-  --ink: #f2f8ff;
-  --muted: #a8c4e6;
-  --accent: #bfe3ff;
-  --accent-ink: #050b14;
-  --accent-2: #ff8ad8;
-  --xp: #ffe066;
-  --danger: #ff6b6b;
-  --good: #7dffd4;
-  --flame: #8ad8ff;
-}
+[data-theme='lava'] { --accent: #ff4b3e; --glow: rgba(255, 75, 62, 0.28); }
+[data-theme='ocean'] { --accent: #3ad1ff; --accent-2: #ff6a2b; --good: #c6ff3a; --glow: rgba(58, 209, 255, 0.25); }
+[data-theme='forest'] { --accent: #c6ff3a; --good: #3ad1ff; --glow: rgba(198, 255, 58, 0.22); }
+[data-theme='court'] { --accent: #ff9b2f; --glow: rgba(255, 155, 47, 0.26); }
+[data-theme='synth'] { --accent: #ff3e9e; --glow: rgba(255, 62, 158, 0.26); }
+[data-theme='ice'] { --accent: #bfe3ff; --accent-2: #ff6a2b; --good: #7dffd4; --glow: rgba(191, 227, 255, 0.22); }
+[data-theme='gold'] { --accent: #ffd23f; --xp: #fff3a0; --glow: rgba(255, 210, 63, 0.26); }
 
 @theme inline {
   --color-bg: var(--bg);
@@ -146,8 +43,8 @@
   --color-danger: var(--danger);
   --color-good: var(--good);
   --color-flame: var(--flame);
-  --font-pixel: 'Press Start 2P', ui-monospace, monospace;
-  --font-body: 'Pixelify Sans', ui-rounded, system-ui, sans-serif;
+  --font-pixel: 'Chakra Petch', system-ui, sans-serif;
+  --font-body: 'Chakra Petch', system-ui, sans-serif;
 }
 
 @layer base {
@@ -168,11 +65,8 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-body);
-  font-size: 18px;
+  font-size: 17px;
   line-height: 1.35;
-  /* Pixelify's "fi" ligature looks like "A" */
-  font-variant-ligatures: none;
-  font-feature-settings: 'liga' 0, 'clig' 0;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
 }
@@ -202,63 +96,44 @@ input[type='number']::-webkit-outer-spin-button {
 
 .font-pixel {
   font-family: var(--font-pixel);
-  letter-spacing: 0.02em;
-  line-height: 1.5;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.25;
 }
 
 @layer components {
-/* ---- Pixel panels: notched corners via box-shadow ---- */
+/* ---- HUD panels: angled corners ---- */
 .px-box {
+  position: relative;
   background: var(--panel);
-  box-shadow:
-    0 -4px 0 0 var(--edge),
-    0 4px 0 0 var(--edge),
-    -4px 0 0 0 var(--edge),
-    4px 0 0 0 var(--edge),
-    inset 0 4px 0 0 rgb(255 255 255 / 0.06),
-    inset 0 -4px 0 0 rgb(0 0 0 / 0.25);
-  margin: 4px;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+  margin: 10px 0;
 }
-
 .px-box-accent {
-  box-shadow:
-    0 -4px 0 0 var(--accent),
-    0 4px 0 0 var(--accent),
-    -4px 0 0 0 var(--accent),
-    4px 0 0 0 var(--accent),
-    inset 0 4px 0 0 rgb(255 255 255 / 0.06),
-    inset 0 -4px 0 0 rgb(0 0 0 / 0.25);
+  border-left: 4px solid var(--accent);
 }
 
 .px-btn {
   position: relative;
   min-height: 52px;
   padding: 0 18px;
+  border: none;
   background: var(--accent);
   color: var(--accent-ink);
   font-family: var(--font-pixel);
-  font-size: 13px;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  box-shadow:
-    0 -4px 0 0 var(--ink),
-    0 4px 0 0 var(--ink),
-    -4px 0 0 0 var(--ink),
-    4px 0 0 0 var(--ink),
-    inset 0 -6px 0 0 rgb(0 0 0 / 0.28),
-    inset 0 4px 0 0 rgb(255 255 255 / 0.35);
-  margin: 4px;
-  transition: transform 60ms;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  margin: 4px 0;
+  transition: transform 60ms, filter 60ms;
   touch-action: manipulation;
   user-select: none;
 }
 .px-btn:active:not(:disabled) {
-  transform: translateY(3px);
-  box-shadow:
-    0 -4px 0 0 var(--ink),
-    0 4px 0 0 var(--ink),
-    -4px 0 0 0 var(--ink),
-    4px 0 0 0 var(--ink),
-    inset 0 4px 0 0 rgb(0 0 0 / 0.28);
+  transform: translateY(2px);
+  filter: brightness(0.9);
 }
 .px-btn:disabled {
   opacity: 0.45;
@@ -277,17 +152,23 @@ input[type='number']::-webkit-outer-spin-button {
 }
 
 .px-input {
-  background: var(--bg-2);
-  border: 3px solid var(--edge);
+  background: var(--panel-2);
+  border: none;
+  border-bottom: 3px solid var(--edge);
   min-height: 52px;
   padding: 0 10px;
   width: 100%;
   outline: none;
+  font-weight: 600;
 }
 .px-input:focus {
-  border-color: var(--accent);
+  border-bottom-color: var(--accent);
 }
 
+/* Small angled chips/tags */
+.cut-sm {
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
 }
 
 .pixelated {
@@ -331,7 +212,7 @@ input[type='number']::-webkit-outer-spin-button {
 
 @keyframes flash {
   0%, 100% { background: var(--accent); }
-  50% { background: var(--accent-2); }
+  50% { background: var(--ink); }
 }
 .anim-flash { animation: flash 300ms steps(1) infinite; }
 

@@ -27,9 +27,9 @@ export function MobilityCard({ date, gymDay }: { date: ISODate; gymDay: boolean 
   return (
     <Panel accent={complete}>
       <div className="flex items-center justify-between mb-1">
-        <div className="font-pixel text-[11px] text-accent">🧘 MOBILITY {count}/{items.length}</div>
+        <div className="font-pixel text-[15px] text-accent">🧘 MOBILITY {count}/{items.length}</div>
         {complete ? (
-          <span className="font-pixel text-[10px] text-good">+{XP.mobility} XP ✓</span>
+          <span className="font-pixel text-[14px] text-good">+{XP.mobility} XP ✓</span>
         ) : (
           <button className="text-sm text-muted underline min-h-[44px]" onClick={() => void patchDaily(date, { mobility: items.map((i) => i.id), mobilityDone: true }).then(() => fx.floatXP(XP.mobility, 'mobility'))}>
             all done

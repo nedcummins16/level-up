@@ -7,7 +7,7 @@ import { defineConfig } from 'vitest/config'
 // so every asset path must start with /level-up/. If you rename the repo,
 // change this (and the basePath in pwa-assets.config.ts).
 const BASE = '/level-up/'
-const BG = '#0d0b1e'
+const BG = '#0b0d10'
 
 // https://vite.dev/config/
 export default defineConfig({

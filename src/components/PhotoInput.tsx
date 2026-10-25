@@ -46,7 +46,7 @@ export function PhotoInput({ date }: { date: ISODate }) {
             <div key={p.id} className="relative">
               <PhotoThumb photo={p} />
               <button
-                className="absolute top-1 right-1 w-8 h-8 bg-black/70 font-pixel text-[10px]"
+                className="absolute top-1 right-1 w-8 h-8 bg-black/70 font-pixel text-[14px]"
                 aria-label="Delete photo"
                 onClick={() => {
                   if (confirm('Delete this photo?')) void db.photos.delete(p.id!)

@@ -28,7 +28,7 @@ export function CardioCard({ item, date }: { item: PlanItem; date: ISODate }) {
       <div className="flex items-start gap-3">
         <div className="text-3xl">{icon}</div>
         <div className="flex-1">
-          <div className="font-pixel text-[11px] leading-relaxed">{item.label}</div>
+          <div className="font-pixel text-[15px] leading-relaxed">{item.label}</div>
           {slot === 'cardio' && <div className="text-sm text-muted">Zone 2: you could hold a conversation.</div>}
           {slot === 'intervals' && <div className="text-sm text-muted">Tennis is off this week. Warm up 5 min first.</div>}
         </div>
@@ -38,7 +38,7 @@ export function CardioCard({ item, date }: { item: PlanItem; date: ISODate }) {
       )}
       {done ? (
         <div className="flex items-center justify-between mt-2">
-          <span className="text-good font-pixel text-[11px]">
+          <span className="text-good font-pixel text-[15px]">
             ✓ {done.minutes} min{done.distanceKm ? ` · ${done.distanceKm} km` : ''} · +{XP.cardio} XP
           </span>
           <button className="text-sm text-muted underline min-h-[44px]" onClick={() => void deleteSession(done.id!)}>

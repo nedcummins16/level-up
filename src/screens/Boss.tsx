@@ -42,8 +42,8 @@ export function BossCard({ testId }: { testId: string }) {
         <div className="flex items-center gap-3">
           <div className={`text-5xl ${beaten ? 'grayscale opacity-60' : 'anim-bob'}`}>{td.bossEmoji}</div>
           <div className="flex-1 min-w-0">
-            <div className="font-pixel text-[9px] text-danger">{beaten ? 'DEFEATED' : 'BOSS BATTLE'}</div>
-            <div className="font-pixel text-[11px] leading-relaxed">{td.boss.toUpperCase()}</div>
+            <div className="font-pixel text-[12px] text-danger">{beaten ? 'DEFEATED' : 'BOSS BATTLE'}</div>
+            <div className="font-pixel text-[15px] leading-relaxed">{td.boss.toUpperCase()}</div>
             <Bar value={td.items.length - filled} max={td.items.length} color="var(--danger)" height={12} className="mt-1" />
             <div className="text-xs text-muted mt-1">
               HP {td.items.length - filled}/{td.items.length} · {beaten ? `+${XP.boss} XP earned` : `${XP.boss} XP bounty`}
@@ -122,7 +122,7 @@ export function BossBattle({ testId, onDone }: { testId: string; onDone: () => v
         return (
           <div key={item} className="py-3 border-b-2 border-edge/50">
             <div className="flex justify-between items-baseline">
-              <div className="font-pixel text-[10px] text-accent leading-relaxed">{info.name.toUpperCase()}</div>
+              <div className="font-pixel text-[14px] text-accent leading-relaxed">{info.name.toUpperCase()}</div>
               {p && item !== 'lifts' && (
                 <div className="text-xs text-muted">
                   Last {item === 'fiveK' ? fmtSec(p.v) : p.v} ({fmtDate(p.date).slice(0, 5)})
@@ -172,7 +172,7 @@ function ItemInput({
         {(['squat', 'bench', 'deadlift'] as const).map((k) => (
           <div key={k} className="bg-bg-2 p-2">
             <div className="text-muted text-xs">{k}</div>
-            <div className="font-pixel text-[12px] mt-1">{lifts[k] || '–'}</div>
+            <div className="font-pixel text-[16px] mt-1">{lifts[k] || '–'}</div>
           </div>
         ))}
         <div className="col-span-3 text-xs text-muted">Estimated 1RM (Epley) from your best set within 6 days of the test.</div>
@@ -208,7 +208,7 @@ function ItemInput({
           <NumField label="Standing reach cm" value={stand} onChange={(v) => upd(v, touch)} className="flex-1" />
           <NumField label="Jump touch cm" value={touch} onChange={(v) => upd(stand, v)} className="flex-1" />
         </div>
-        {value !== undefined && <div className="font-pixel text-[12px] text-xp mt-2">= {value} cm</div>}
+        {value !== undefined && <div className="font-pixel text-[16px] text-xp mt-2">= {value} cm</div>}
       </div>
     )
   }

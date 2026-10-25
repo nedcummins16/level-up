@@ -13,7 +13,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { error: E
     if (!this.state.error) return this.props.children
     return (
       <div className="min-h-screen bg-bg p-6 pt-safe">
-        <div className="font-pixel text-[16px] text-danger mt-8 mb-4">GAME CRASHED</div>
+        <div className="font-pixel text-[22px] text-danger mt-8 mb-4">GAME CRASHED</div>
         <p className="mb-2">Something went wrong. Your data is still saved on this phone.</p>
         <p className="text-sm text-muted mb-6 break-words">{this.state.error.message}</p>
         <button className="px-btn w-full mb-3" onClick={() => location.reload()}>

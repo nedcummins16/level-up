@@ -93,7 +93,7 @@ export function WeekPlanner({ draft, setDraft }: { draft: DraftAppt[]; setDraft:
       {draft.map((a, i) => (
         <div key={a.date} className="py-2 border-b border-edge/40">
           <div className="text-sm">
-            <span className="font-pixel text-[9px] text-accent mr-2">{fmtDay(a.date).toUpperCase()}</span>
+            <span className="font-pixel text-[12px] text-accent mr-2">{fmtDay(a.date).toUpperCase()}</span>
             {a.label}
           </div>
           <div className="flex gap-2 mt-1">

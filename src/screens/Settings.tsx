@@ -18,7 +18,7 @@ export function Settings() {
   const [install, setInstall] = useState(false)
   return (
     <div className="px-3 pt-safe pb-32">
-      <div className="font-pixel text-[16px] text-accent mt-2 mb-3">SETTINGS</div>
+      <div className="font-pixel text-[22px] text-accent mt-2 mb-3">SETTINGS</div>
       <HeroSettings />
       <BackupSettings />
       <StartWeights />
@@ -344,7 +344,7 @@ function ExerciseGuide() {
       {open &&
         [...groups, { name: 'Swaps', ids: others }].map((g) => (
           <div key={g.name} className="mt-3">
-            <div className="font-pixel text-[9px] text-accent mb-1">{g.name.toUpperCase()}</div>
+            <div className="font-pixel text-[12px] text-accent mb-1">{g.name.toUpperCase()}</div>
             {g.ids.map((id) => (
               <button key={id} className="w-full text-left py-2 border-b border-edge/40 flex justify-between items-center" onClick={() => setEx(id)}>
                 <span>{EXERCISES[id].name}</span>
