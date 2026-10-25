@@ -33,7 +33,7 @@ export function AppProvider({ data, today, tab, go, children }: { data: AppData;
     const week = planFor(mondayOf(today))
     const todayPlan = week.days.find((d) => d.date === today)!
     const bodyweight = latestWeight(data.daily, today)
-    const game = computeGame({ settings: s, sessions: data.sessions, daily: data.daily, checkins: data.checkins, tests: data.tests, life: data.life, today, planFor })
+    const game = computeGame({ settings: s, sessions: data.sessions, daily: data.daily, checkins: data.checkins, tests: data.tests, life: data.life, today, planFor, appointments: data.appointments })
     return {
       game,
       data,

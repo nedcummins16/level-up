@@ -3,6 +3,10 @@
 
 import {
   ACHIEVEMENTS,
+  COSMETICS,
+  HOME_GYM,
+  LOOT,
+  ON_TIME,
   COMEBACK,
   FOOD,
   BEACH_RAID,
@@ -21,12 +25,13 @@ import {
   type Unlockable,
 } from '../config/game'
 import { EXERCISES, PROGRAM } from '../config/program'
-import type { CheckIn, DailyLog, LifeEvent, Settings, TestResult, WorkoutSession } from '../db/types'
+import type { Appointment, CheckIn, DailyLog, LifeEvent, Settings, TestResult, WorkoutSession } from '../db/types'
 import { avg7, latestWeight, weighIns } from './body'
 import { addDays, mondayOf, rangeDays, type ISODate } from './dates'
 import { allTestDays, getPhase, weekNumber } from './plan'
 import { epley } from './progression'
 import { allPRs, type PREvent } from './records'
+import { computeLoot, onTimeSessions, specialGearUnlocked, type LootState } from './loot'
 import { bestJumpReach, bossTrophies, computeDunk, computePhysique, type BossTrophy, type DunkState, type Physique } from './growth'
 import { isStrengthSlot, type WeekPlan } from './schedule'
 import { earnsStrengthXP } from './xp'
@@ -40,13 +45,14 @@ export interface GameInput {
   life: LifeEvent[]
   today: ISODate
   planFor: (weekStart: ISODate) => WeekPlan
+  appointments?: Appointment[]
 }
 
 export interface XpEntry {
   date: ISODate
   amount: number
   reason: string
-  kind: 'set' | 'session' | 'cardio' | 'mobility' | 'quest' | 'checkin' | 'pr' | 'weekly' | 'raid' | 'achievement' | 'boss' | 'recovery' | 'comeback'
+  kind: 'set' | 'session' | 'cardio' | 'mobility' | 'quest' | 'checkin' | 'pr' | 'weekly' | 'raid' | 'achievement' | 'boss' | 'recovery' | 'comeback' | 'loot' | 'ontime'
 }
 
 export interface StatBlock {
@@ -106,6 +112,10 @@ export interface GameState {
   nextUnlock: Unlockable | null
   bossesBeaten: string[]
   physique: Physique
+  loot: LootState
+  /** Every gear id you can wear (levels, streaks, sets). */
+  gearUnlocked: string[]
+  gymItems: string[]
   dunk: DunkState
   trophies: BossTrophy[]
 }
@@ -414,6 +424,14 @@ export function computeGame(input: GameInput): GameState {
     if (w === lastWeek) thisWeek = result
   }
 
+  // --- Loot: duplicates turn into XP; on-time bonus for keeping your planned time
+  const loot = computeLoot(
+    sessions,
+    weeks.filter((w) => w.raid.done && w.raid.opened).map((w) => w.weekStart),
+  )
+  for (const d of loot.drops) if (d.duplicate) add(d.date, LOOT.duplicateXP, 'Duplicate loot', 'loot')
+  for (const s of onTimeSessions(sessions, input.appointments ?? [])) add(s.date, ON_TIME.xp, 'On time!', 'ontime')
+
   // --- Achievements
   const ach = computeAchievements(input, prs, weeks)
   for (const a of ach) if (a.unlocked) add(a.date ?? today, XP.achievement, `Achievement: ${a.name}`, 'achievement')
@@ -445,6 +463,9 @@ export function computeGame(input: GameInput): GameState {
     nextUnlock: UNLOCKABLES.find((u) => u.level > lv.level) ?? null,
     bossesBeaten,
     physique: computePhysique(daily, (d) => computeStats(input, d).STR, today),
+    loot,
+    gearUnlocked: [...COSMETICS.filter((c) => c.level <= lv.level).map((c) => c.id), ...specialGearUnlocked(best, loot.setsComplete)],
+    gymItems: HOME_GYM.filter((g) => g.level <= lv.level).map((g) => g.id),
     dunk: computeDunk(tests, daily),
     trophies: bossTrophies(tests),
   }

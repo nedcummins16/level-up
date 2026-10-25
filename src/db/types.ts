@@ -42,6 +42,9 @@ export interface Settings {
   /** Last physique / dunk milestone you've been shown (so celebrations fire once). */
   seenBuild: { bulk: number; str: number } | null
   seenDunk: string[]
+  /** Loot drops / special gear already revealed (null = not set up yet). */
+  seenDrops: string[] | null
+  seenGear: string[] | null
 }
 
 /** When and where you'll train on a date (implementation intention). */

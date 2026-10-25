@@ -59,7 +59,7 @@ export function titleFor(level: number) {
 
 export interface Unlockable {
   level: number
-  kind: 'theme' | 'cosmetic'
+  kind: 'theme' | 'cosmetic' | 'gym'
   id: string
   name: string
   slot?: 'head' | 'arms' | 'shoes' | 'shirt' | 'hand' | 'back' | 'aura'
@@ -93,9 +93,25 @@ export const COSMETICS: Unlockable[] = [
   { level: 22, kind: 'cosmetic', id: 'crown', name: 'Rim Rattler crown', slot: 'head' },
 ]
 
+/** Your home gym on the Hero screen: one new piece every other level. */
+export const HOME_GYM: { level: number; id: string; name: string }[] = [
+  { level: 2, id: 'mat', name: 'Gym mat' },
+  { level: 4, id: 'dumbbells', name: 'Dumbbell rack' },
+  { level: 6, id: 'bench', name: 'Bench' },
+  { level: 8, id: 'kettlebells', name: 'Kettlebells' },
+  { level: 10, id: 'rack', name: 'Squat rack' },
+  { level: 12, id: 'pullupbar', name: 'Pull-up bar' },
+  { level: 14, id: 'plates', name: 'Plate tree' },
+  { level: 16, id: 'bike', name: 'Air bike' },
+  { level: 18, id: 'poster', name: 'Wall poster' },
+  { level: 20, id: 'lights', name: 'Lights + speaker' },
+  { level: 22, id: 'hoop', name: 'Basketball hoop' },
+]
+
 export const UNLOCKABLES: Unlockable[] = [
   ...THEMES.filter((t) => t.level > 1).map((t) => ({ level: t.level, kind: 'theme' as const, id: t.id, name: `${t.name} theme` })),
   ...COSMETICS,
+  ...HOME_GYM.map((g) => ({ level: g.level, kind: 'gym' as const, id: g.id, name: `Home gym: ${g.name}` })),
 ].sort((a, b) => a.level - b.level)
 
 export const DAILY_QUESTS = [
@@ -229,3 +245,61 @@ export const DUNK = {
 
 /** Boss trophies: share of results that beat your last test. */
 export const TROPHY = { gold: 0.75, silver: 0.5 }
+
+/**
+ * Gear you can't get by levelling: earned with streaks (best streak ever) or by
+ * completing a loot collection set.
+ */
+export const SPECIAL_GEAR: { id: string; name: string; slot: NonNullable<Unlockable['slot']>; streak?: number; set?: string }[] = [
+  { id: 'wristbands-streak', name: 'Streak sweatbands', slot: 'arms', streak: 2 },
+  { id: 'flame-shoes', name: 'Flame high-tops', slot: 'shoes', streak: 4 },
+  { id: 'headband-inferno', name: 'Inferno headband', slot: 'head', streak: 8 },
+  { id: 'jacket-champ', name: 'Championship jacket', slot: 'shirt', streak: 12 },
+  { id: 'backpack', name: 'Gym backpack', slot: 'back', set: 'gymbag' },
+  { id: 'jersey-court', name: 'Court jersey', slot: 'shirt', set: 'court' },
+  { id: 'aura-iron', name: 'Iron aura', slot: 'aura', set: 'iron' },
+  { id: 'aura-legend', name: 'Legend aura', slot: 'aura', set: 'legends' },
+]
+
+export type Rarity = 'common' | 'rare' | 'epic' | 'legendary'
+
+/** Loot: a drop after every planned session that earns XP (max 6 a week), plus the raid chest. */
+export const LOOT = {
+  odds: { common: 0.6, rare: 0.28, epic: 0.1, legendary: 0.02 } as Record<Rarity, number>,
+  /** A rare-or-better drop is guaranteed after this many commons in a row. */
+  pity: 3,
+  maxPerWeek: 6,
+  /** Raid chest odds (always rare or better). */
+  chestOdds: { common: 0, rare: 0.62, epic: 0.3, legendary: 0.08 } as Record<Rarity, number>,
+  duplicateXP: 25,
+  sets: [
+    { id: 'gymbag', name: 'Gym Bag', rarity: 'common' as Rarity },
+    { id: 'court', name: 'Court Kings', rarity: 'rare' as Rarity },
+    { id: 'iron', name: 'Iron Vault', rarity: 'epic' as Rarity },
+    { id: 'legends', name: 'Legends', rarity: 'legendary' as Rarity },
+  ],
+  items: [
+    { id: 'shaker', name: 'Protein shaker', set: 'gymbag', icon: '🥤' },
+    { id: 'towel', name: 'Gym towel', set: 'gymbag', icon: '🧻' },
+    { id: 'bottle', name: 'Water bottle', set: 'gymbag', icon: '💧' },
+    { id: 'chalk', name: 'Chalk ball', set: 'gymbag', icon: '🥚' },
+    { id: 'straps', name: 'Lifting straps', set: 'gymbag', icon: '🎗️' },
+    { id: 'signedball', name: 'Signed ball', set: 'court', icon: '🏀' },
+    { id: 'whistle', name: 'Coach whistle', set: 'court', icon: '📯' },
+    { id: 'kicks', name: 'Retro kicks', set: 'court', icon: '👟' },
+    { id: 'net', name: 'Game-winner net', set: 'court', icon: '🥅' },
+    { id: 'scoreboard', name: 'Mini scoreboard', set: 'court', icon: '📟' },
+    { id: 'golddb', name: 'Gold dumbbell', set: 'iron', icon: '🏋️' },
+    { id: 'luckyplate', name: 'Lucky plate', set: 'iron', icon: '💿' },
+    { id: 'chain', name: 'Iron chain', set: 'iron', icon: '⛓️' },
+    { id: 'belt', name: 'Champion belt', set: 'iron', icon: '🥋' },
+    { id: 'kettle', name: 'Golden kettlebell', set: 'iron', icon: '🔔' },
+    { id: 'mvp', name: 'MVP trophy', set: 'legends', icon: '🏆' },
+    { id: 'ring', name: 'Championship ring', set: 'legends', icon: '💍' },
+    { id: 'goldhoop', name: 'Golden hoop', set: 'legends', icon: '⭕' },
+    { id: 'crownjewel', name: 'Crown jewel', set: 'legends', icon: '💎' },
+  ],
+}
+
+/** Start a gym session within this many minutes of the time you planned = on-time bonus. */
+export const ON_TIME = { windowMin: 30, xp: 25 }

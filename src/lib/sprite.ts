@@ -30,6 +30,7 @@ export const JERSEYS: Record<string, { shirt: string; number: string; sleeves?: 
   'jersey-red': { shirt: '#e8263c', number: '#ffffff' },
   'jersey-black': { shirt: '#202020', number: '#ffd23f' },
   'jacket-champ': { shirt: '#5b2a86', number: '#ffd23f', sleeves: true, trim: '#ffd23f' },
+  'jersey-court': { shirt: '#ff7a1a', number: '#ffffff' },
 }
 
 const HEADBANDS: Record<string, string[]> = {
@@ -43,7 +44,7 @@ const SHOES: Record<string, { color: string; tip?: string; high?: boolean }> = {
   'gold-shoes': { color: '#ffd23f' },
   'flame-shoes': { color: '#ff6a2b', tip: '#ffd23f', high: true },
 }
-const AURAS: Record<string, string> = { 'aura-blue': '#34e0ff', 'aura-gold': '#ffd23f' }
+const AURAS: Record<string, string> = { 'aura-blue': '#34e0ff', 'aura-gold': '#ffd23f', 'aura-iron': '#ff3b3b', 'aura-legend': '#b46bff' }
 
 const clampTier = (n: number) => Math.max(0, Math.min(4, Math.round(n)))
 
@@ -153,6 +154,12 @@ export function buildSprite(build: Build, cosmetics: Record<string, string> = {}
   if (head === 'crown') {
     span(1, 3, '#ffd23f')
     for (const x of [CX - 3, CX - 1, CX, CX + 2]) set(x, 0, '#ffd23f')
+  }
+
+  // ---- Backpack: straps on the chest, pack showing between torso and arms
+  if (cosmetics.back === 'backpack') {
+    for (let y = 11; y <= 15; y++) mirror(CX - 1 - d.torsoHalf, y, '#6b4a2b')
+    for (let y = 10; y <= 13; y++) mirror(CX - 3, y, '#4a3220')
   }
 
   // ---- Wristbands

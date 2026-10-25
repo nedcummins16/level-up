@@ -2,10 +2,8 @@ import { XP } from '../config/game'
 import { updateSettings } from '../db/db'
 import type { WeekResult } from '../lib/game'
 import { useApp } from '../state/app'
-import { useFx } from '../state/fx'
+import { sfx } from '../lib/sound'
 import { Badge, Btn, Panel } from './ui'
-
-const LOOT = ['Golden Dumbbell', 'Potion of Gains', 'Scroll of Protein', 'Enchanted Chalk', 'Sneakers of Haste', 'Amulet of Grip', 'Elixir of Sleep', 'Rune of the Rim']
 
 export function ChestPixel({ open = false, size = 44 }: { open?: boolean; size?: number }) {
   const closed = ['..KKKKKK..', '.KYYYYYYK.', 'KYBBBBBBYK', 'KKKKKKKKKK', 'KBBBYYBBBK', 'KBBBYYBBBK', 'KBBBBBBBBK', 'KKKKKKKKKK']
@@ -21,7 +19,6 @@ export function ChestPixel({ open = false, size = 44 }: { open?: boolean; size?:
 
 export function RaidCard({ week }: { week?: WeekResult | null }) {
   const app = useApp()
-  const fx = useFx()
   const w = week ?? app.game.thisWeek
   if (!w || w.planned === 0) return null
   const r = w.raid
@@ -44,12 +41,12 @@ export function RaidCard({ week }: { week?: WeekResult | null }) {
           variant="gold"
           className="w-full mt-2"
           onClick={() => {
-            const loot = LOOT[Math.floor(Math.random() * LOOT.length)]
+            // The watcher reveals the item (always rare or better) once the chest is opened.
+            sfx.chest()
             void updateSettings((s) => ({ openedChests: [...s.openedChests, w.weekStart] }))
-            fx.celebrate({ kind: 'chest', title: r.name, sub: `You found: ${loot}`, icon: '🎁', xp: XP.raidChest })
           }}
         >
-          Open chest
+          Open chest · rare+ loot · +{XP.raidChest} XP
         </Btn>
       )}
     </Panel>

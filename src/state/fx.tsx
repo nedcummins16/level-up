@@ -5,7 +5,9 @@ import { createContext, useCallback, useContext, useMemo, useRef, useState, type
 import { sfx } from '../lib/sound'
 
 export interface Celebration {
-  kind: 'pr' | 'level' | 'achievement' | 'chest' | 'boss' | 'session'
+  kind: 'pr' | 'level' | 'achievement' | 'chest' | 'boss' | 'session' | 'loot' | 'gear'
+  /** Accent colour for the frame (e.g. loot rarity). */
+  colour?: string
   title: string
   sub?: string
   icon?: string
@@ -51,7 +53,7 @@ export function FxProvider({ children }: { children: ReactNode }) {
     setQueue((q) => [...q, c])
     if (c.kind === 'pr') sfx.pr()
     else if (c.kind === 'level') sfx.levelUp()
-    else if (c.kind === 'chest') sfx.chest()
+    else if (c.kind === 'chest' || c.kind === 'loot') sfx.chest()
     else sfx.achievement()
     fireConfetti(c.kind !== 'session')
   }, [])
@@ -75,7 +77,7 @@ export function FxProvider({ children }: { children: ReactNode }) {
 }
 
 function CelebrationOverlay({ c, onDone }: { c: Celebration; onDone: () => void }) {
-  const heading = { pr: 'NEW PR!', level: 'LEVEL UP!', achievement: 'ACHIEVEMENT!', chest: 'RAID CHEST!', boss: 'BOSS DEFEATED!', session: 'QUEST COMPLETE!' }[c.kind]
+  const heading = { pr: 'NEW PR!', level: 'LEVEL UP!', achievement: 'ACHIEVEMENT!', chest: 'RAID CHEST!', boss: 'BOSS DEFEATED!', session: 'QUEST COMPLETE!', loot: 'LOOT DROP!', gear: 'NEW GEAR!' }[c.kind]
   return (
     <div className="fixed inset-0 z-[80] grid place-items-center bg-black/80 p-6" onClick={onDone}>
       <div className="relative w-full max-w-sm">
@@ -83,8 +85,10 @@ function CelebrationOverlay({ c, onDone }: { c: Celebration; onDone: () => void 
           className="anim-rays absolute -inset-24 opacity-30 pointer-events-none"
           style={{ background: 'repeating-conic-gradient(var(--xp) 0deg 10deg, transparent 10deg 30deg)', borderRadius: '50%' }}
         />
-        <div className="px-box px-box-accent anim-pop relative p-6 text-center">
-          <div className="font-pixel text-[24px] text-xp mb-4 anim-blink">{heading}</div>
+        <div className="px-box px-box-accent anim-pop relative p-6 text-center" style={c.colour ? { borderLeftColor: c.colour, boxShadow: `inset 0 0 0 2px ${c.colour}` } : undefined}>
+          <div className="font-pixel text-[24px] text-xp mb-4 anim-blink" style={c.colour ? { color: c.colour } : undefined}>
+            {heading}
+          </div>
           {c.icon && <div className="text-6xl mb-3 anim-bob">{c.icon}</div>}
           <div className="font-pixel text-[18px] text-ink mb-2 leading-relaxed">{c.title}</div>
           {c.sub && <div className="text-muted mb-3">{c.sub}</div>}

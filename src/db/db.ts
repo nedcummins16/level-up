@@ -71,6 +71,8 @@ export function defaultSettings(): Settings {
     lightDismissed: [],
     seenBuild: null,
     seenDunk: [],
+    seenDrops: null,
+    seenGear: null,
   }
 }
 

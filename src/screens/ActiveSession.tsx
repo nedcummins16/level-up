@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { XP } from '../config/game'
+import { ON_TIME, XP } from '../config/game'
+import { melbourneMinutes } from '../lib/loot'
 import { EXERCISES, SESSIONS } from '../config/program'
 import type { StrengthSlot } from '../config/types'
 import type { LoggedExercise, LoggedSet, WorkoutSession } from '../db/types'
@@ -145,11 +146,17 @@ export function ActiveSession({ session }: { session: WorkoutSession }) {
   const firstExDone = s.exercises[0]?.sets.every((x) => x.done)
   const elapsed = Math.floor((Date.now() - s.startedAt) / 60000)
 
+  const appt = app.data.appointments.find((a) => a.date === s.date)
+  const onTime = !!appt && earns && (() => {
+    const [h, m] = appt.time.split(':').map(Number)
+    return Math.abs(melbourneMinutes(s.startedAt) - (h * 60 + m)) <= ON_TIME.windowMin
+  })()
+
   const finish = async () => {
     timer.stop()
     await finishSession(s.id!)
     setConfirmFinish(false)
-    fx.celebrate({ kind: 'session', title: `${template.name} complete`, sub: `${doneSets} sets in ${elapsed} min${earns ? '' : ' (weekly XP cap reached: rest is gains too)'}`, icon: '⚔️', xp: earns ? XP.session : 0 })
+    fx.celebrate({ kind: 'session', title: `${template.name} complete`, sub: `${doneSets} sets in ${elapsed} min${onTime ? ` · ON TIME +${ON_TIME.xp} XP` : ''}${earns ? '' : ' (weekly XP cap reached: rest is gains too)'}`, icon: '⚔️', xp: earns ? XP.session : 0 })
     app.go('home')
   }
 
@@ -163,6 +170,7 @@ export function ActiveSession({ session }: { session: WorkoutSession }) {
           <div className="flex-1 min-w-0">
             <div className="font-pixel text-[12px] tracking-[0.22em] text-accent">
               IN PROGRESS · {elapsed} MIN · {doneSets}/{totalSets}
+              {onTime && <span className="text-good"> · ON TIME</span>}
             </div>
             <div className="font-pixel text-[24px] leading-tight truncate">{template.name.toUpperCase()}</div>
           </div>

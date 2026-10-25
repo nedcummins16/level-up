@@ -3,7 +3,7 @@ import { AddToCalendar } from '../components/Appointments'
 import { Character } from '../components/Character'
 import { FeelCardView } from '../components/FeelIt'
 import { Btn, H, NumField, Panel, Sheet, Toggle } from '../components/ui'
-import { COSMETICS, THEMES, TITLES } from '../config/game'
+import { COSMETICS, LOOT, SPECIAL_GEAR, THEMES, TITLES } from '../config/game'
 import { EXERCISES, PROGRAM, SESSIONS } from '../config/program'
 import { updateSettings } from '../db/db'
 import { exportBackup, parseBackup, resetAll, restoreBackup } from '../lib/backup'
@@ -104,7 +104,14 @@ function HeroSettings() {
       </div>
       <div className="text-sm text-muted mb-1">Gear</div>
       {slots.map((slot) => {
-        const items = COSMETICS.filter((c) => c.slot === slot)
+        const items = [
+          ...COSMETICS.filter((c) => c.slot === slot).map((c) => ({ id: c.id, name: c.name, lock: `LV ${c.level}` })),
+          ...SPECIAL_GEAR.filter((g) => g.slot === slot).map((g) => ({
+            id: g.id,
+            name: g.name,
+            lock: g.streak ? `${g.streak}-week streak` : `${LOOT.sets.find((x) => x.id === g.set)?.name} set`,
+          })),
+        ]
         return (
           <div key={slot} className="flex items-center gap-2 py-1">
             <span className="w-16 text-sm capitalize">{slot}</span>
@@ -120,8 +127,8 @@ function HeroSettings() {
             >
               <option value="">None</option>
               {items.map((c) => (
-                <option key={c.id} value={c.id} disabled={c.level > game.level}>
-                  {c.level > game.level ? `🔒 ${c.name} (LV ${c.level})` : c.name}
+                <option key={c.id} value={c.id} disabled={!game.gearUnlocked.includes(c.id)}>
+                  {game.gearUnlocked.includes(c.id) ? c.name : `🔒 ${c.name} (${c.lock})`}
                 </option>
               ))}
             </select>

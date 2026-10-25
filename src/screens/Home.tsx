@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Character, StreakFlame } from '../components/Character'
 import { DailyQuests } from '../components/DailyQuests'
 import { DunkMeter, PhysiqueCard, TrophyCup } from '../components/Growth'
+import { HomeGym } from '../components/HomeGym'
+import { CollectionCard } from '../components/Loot'
 import { RaidCard } from '../components/RaidCard'
 import { TimePlace } from '../components/Appointments'
 import { appointmentFor, fmtTime } from '../lib/appointments'
@@ -43,13 +45,14 @@ export function Home() {
       </div>
 
       {/* Character select stage */}
-      <div className="px-box relative h-[300px] flex items-end justify-center pb-7" style={{ background: 'radial-gradient(ellipse at 50% 85%, var(--glow), var(--panel) 62%)' }}>
+      <div className="px-box relative h-[300px] flex items-end justify-center pb-7 overflow-hidden">
+        <HomeGym items={game.gymItems} />
         <svg width="240" height="60" viewBox="0 0 240 60" aria-hidden="true" className="absolute bottom-4 left-1/2 -ml-[120px]">
           <polygon points="40,10 200,10 236,30 200,50 40,50 4,30" fill="var(--bg)" stroke="var(--accent)" strokeWidth="2" />
           <polygon points="60,18 180,18 204,30 180,42 60,42 36,30" fill="none" stroke="var(--edge)" strokeWidth="2" />
         </svg>
         <div className="relative mb-3 anim-bob">
-          <Character cosmetics={s.cosmetics} build={game.physique} size={216} />
+          <Character cosmetics={s.cosmetics} build={game.physique} size={190} />
         </div>
         <div className="absolute left-3 top-3 w-16 h-[72px]">
           <svg width="64" height="72" viewBox="0 0 64 72" aria-hidden="true">
@@ -115,6 +118,7 @@ export function Home() {
       <RaidCard />
       <PhysiqueCard />
       <DunkMeter />
+      <CollectionCard />
 
       {/* Next unlock */}
       {game.nextUnlock && (
