@@ -100,9 +100,9 @@ export function BossBattle({ testId, onDone }: { testId: string; onDone: () => v
     }
     await db.tests.put({ ...res, results, completedAt: Date.now() })
     // Measurements also go to body tracking.
-    if (['arm', 'chest', 'waist'].some((k) => typeof results[k] === 'number')) {
+    if (['armL', 'armR', 'chest', 'waist'].some((k) => typeof results[k] === 'number')) {
       const existing = await db.measurements.where('date').equals(td.date).first()
-      await db.measurements.put({ ...(existing ?? {}), date: td.date, arm: results.arm ?? null, chest: results.chest ?? null, waist: results.waist ?? null })
+      await db.measurements.put({ ...(existing ?? {}), date: td.date, armL: results.armL ?? null, armR: results.armR ?? null, chest: results.chest ?? null, waist: results.waist ?? null })
     }
     const trophy = bossTrophies(await db.tests.toArray()).find((t) => t.testId === testId)
     const trophyText = !trophy

@@ -20,7 +20,7 @@ import { useApp } from '../state/app'
 import { useFx } from '../state/fx'
 import { useTimer } from '../state/timer'
 import { FeelItButton } from '../components/FeelIt'
-import { Btn, Check, Panel, Sheet } from '../components/ui'
+import { Btn, Check, NumberInput, Panel, Sheet } from '../components/ui'
 import { SORE_BACK_SWAPS } from '../config/program'
 
 export function ActiveSession({ session }: { session: WorkoutSession }) {
@@ -419,16 +419,11 @@ function ExerciseCard({
             <div className="grid grid-cols-[24px_1fr_1fr_44px_56px] gap-1.5 items-center">
               <span className={`font-pixel text-[15px] ${isCurrent ? 'text-accent' : 'text-muted'}`}>{si + 1}</span>
               {weighted ? (
-                <input
+                <NumberInput
                   className={`px-input !min-h-[52px] text-center !px-1 text-[20px] ${set.done ? '!border-good' : ''}`}
-                  inputMode="decimal"
-                  value={set.weight ?? ''}
+                  value={set.weight}
                   placeholder={e.equipment === 'bodyweight' ? 'BW' : e.equipment === 'assisted' ? '0' : 'kg'}
-                  onChange={(ev) => {
-                    const raw = ev.target.value.replace(',', '.')
-                    const n = raw === '' ? null : Number(raw)
-                    if (n === null || !Number.isNaN(n)) onSet(si, { weight: n }, true)
-                  }}
+                  onChange={(n) => onSet(si, { weight: n }, true)}
                   aria-label={`Set ${si + 1} weight`}
                 />
               ) : (

@@ -192,6 +192,9 @@ export interface TestResult {
 export interface Measurement {
   id?: number
   date: ISODate
+  armL?: number | null
+  armR?: number | null
+  /** Single arm measurement from before left/right were split (shown as "one arm"). */
   arm?: number | null
   chest?: number | null
   waist?: number | null

@@ -263,18 +263,26 @@ function Body() {
 function Measurements() {
   const { data, today } = useApp()
   const todayM = data.measurements.find((m) => m.date === today)
-  const [arm, setArm] = useState<number | null>(todayM?.arm ?? null)
+  const [armL, setArmL] = useState<number | null>(todayM?.armL ?? null)
+  const [armR, setArmR] = useState<number | null>(todayM?.armR ?? null)
   const [chest, setChest] = useState<number | null>(todayM?.chest ?? null)
   const [waist, setWaist] = useState<number | null>(todayM?.waist ?? null)
   return (
     <Panel>
       <H>Measurements (cm)</H>
-      <div className="flex gap-2 items-end mb-2">
-        <NumField label="Arm" value={arm} onChange={setArm} className="flex-1" />
-        <NumField label="Chest" value={chest} onChange={setChest} className="flex-1" />
-        <NumField label="Waist" value={waist} onChange={setWaist} className="flex-1" />
+      <p className="text-xs text-muted mb-2">Decimals are fine (e.g. 31.5). Flexed arm at the widest point.</p>
+      <div className="grid grid-cols-2 gap-2 mb-2">
+        <NumField label="Left arm" value={armL} onChange={setArmL} />
+        <NumField label="Right arm" value={armR} onChange={setArmR} />
+        <NumField label="Chest" value={chest} onChange={setChest} />
+        <NumField label="Waist" value={waist} onChange={setWaist} />
       </div>
-      <Btn small className="w-full" disabled={arm === null && chest === null && waist === null} onClick={() => void db.measurements.put({ ...(todayM ?? {}), date: today, arm, chest, waist })}>
+      <Btn
+        small
+        className="w-full"
+        disabled={armL === null && armR === null && chest === null && waist === null}
+        onClick={() => void db.measurements.put({ ...(todayM ?? {}), date: today, armL, armR, chest, waist })}
+      >
         Save for {fmtShort(today)}
       </Btn>
       {data.measurements.length > 0 && (
@@ -282,7 +290,8 @@ function Measurements() {
           <thead>
             <tr className="text-muted">
               <th className="font-normal text-left">Date</th>
-              <th className="font-normal text-right">Arm</th>
+              <th className="font-normal text-right">L arm</th>
+              <th className="font-normal text-right">R arm</th>
               <th className="font-normal text-right">Chest</th>
               <th className="font-normal text-right">Waist</th>
             </tr>
@@ -291,7 +300,16 @@ function Measurements() {
             {[...data.measurements].reverse().map((m) => (
               <tr key={m.id} className="border-t border-edge/40">
                 <td className="py-1.5">{fmtDate(m.date)}</td>
-                <td className="text-right">{m.arm ?? '–'}</td>
+                {m.armL == null && m.armR == null && m.arm != null ? (
+                  <td colSpan={2} className="text-right">
+                    {m.arm} <span className="text-muted text-xs">(one arm)</span>
+                  </td>
+                ) : (
+                  <>
+                    <td className="text-right">{m.armL ?? '–'}</td>
+                    <td className="text-right">{m.armR ?? '–'}</td>
+                  </>
+                )}
                 <td className="text-right">{m.chest ?? '–'}</td>
                 <td className="text-right">{m.waist ?? '–'}</td>
               </tr>
@@ -427,7 +445,7 @@ function TestsTable() {
   const done = data.tests.filter((t) => Object.keys(t.results).length).sort((a, b) => (a.date < b.date ? -1 : 1))
   if (!done.length) return <Panel>No boss battles yet. Test days: {days.map((d) => fmtShort(d.date)).join(', ')}.</Panel>
   const keys: { key: string; label: string; item: TestItemId }[] = [
-    ...(['bodyweight', 'arm', 'chest', 'waist', 'pushups', 'pullups', 'toeTouch', 'jumpReach', 'fiveK', 'restingHr'] as TestItemId[]).map((k) => ({
+    ...(['bodyweight', 'armL', 'armR', 'chest', 'waist', 'pushups', 'pullups', 'toeTouch', 'jumpReach', 'fiveK', 'restingHr'] as TestItemId[]).map((k) => ({
       key: k,
       label: `${TEST_ITEMS[k].name}${TEST_ITEMS[k].unit && k !== 'fiveK' ? ` (${TEST_ITEMS[k].unit})` : ''}`,
       item: k,

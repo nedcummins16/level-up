@@ -119,7 +119,7 @@ export interface BossTrophy {
 }
 
 const COMPARABLE: { key: string; item: TestItemId }[] = [
-  ...(['bodyweight', 'arm', 'chest', 'pushups', 'pullups', 'toeTouch', 'jumpReach', 'fiveK', 'restingHr'] as TestItemId[]).map((k) => ({ key: k, item: k })),
+  ...(['bodyweight', 'armL', 'armR', 'chest', 'pushups', 'pullups', 'toeTouch', 'jumpReach', 'fiveK', 'restingHr'] as TestItemId[]).map((k) => ({ key: k, item: k })),
   { key: 'lifts_squat', item: 'lifts' },
   { key: 'lifts_bench', item: 'lifts' },
   { key: 'lifts_deadlift', item: 'lifts' },

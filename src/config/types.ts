@@ -69,7 +69,8 @@ export type PhaseId = 'prestart' | 'exam' | 'foundation' | 'build' | 'beach' | '
 
 export type TestItemId =
   | 'bodyweight'
-  | 'arm'
+  | 'armL'
+  | 'armR'
   | 'chest'
   | 'waist'
   | 'photos'

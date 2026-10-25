@@ -458,7 +458,8 @@ export const TEST_ITEMS: Record<
   { name: string; unit: string; better: 'higher' | 'lower' | 'none'; hint?: string }
 > = {
   bodyweight: { name: 'Bodyweight (7-day avg)', unit: 'kg', better: 'higher', hint: 'Filled from your weigh-ins if you have them' },
-  arm: { name: 'Arm', unit: 'cm', better: 'higher', hint: 'Flexed, widest point' },
+  armL: { name: 'Left arm', unit: 'cm', better: 'higher', hint: 'Flexed, widest point' },
+  armR: { name: 'Right arm', unit: 'cm', better: 'higher', hint: 'Flexed, widest point' },
   chest: { name: 'Chest', unit: 'cm', better: 'higher', hint: 'Under armpits, relaxed' },
   waist: { name: 'Waist', unit: 'cm', better: 'none', hint: 'At belly button' },
   photos: { name: 'Progress photos', unit: '', better: 'none', hint: 'Optional: front, side, back' },
@@ -471,7 +472,7 @@ export const TEST_ITEMS: Record<
   lifts: { name: 'Best sets (squat / bench / deadlift)', unit: 'kg', better: 'higher', hint: 'Pulled from your logged sets this week' },
 }
 
-const BODY_SKILLS: TestItemId[] = ['bodyweight', 'arm', 'chest', 'waist', 'photos', 'pushups', 'pullups', 'toeTouch', 'jumpReach', 'restingHr', 'lifts']
+const BODY_SKILLS: TestItemId[] = ['bodyweight', 'armL', 'armR', 'chest', 'waist', 'photos', 'pushups', 'pullups', 'toeTouch', 'jumpReach', 'restingHr', 'lifts']
 
 export const TEST_DAYS: TestDay[] = [
   { id: 'T1A', date: '2026-11-16', boss: 'The Baseline Golem', bossEmoji: '🗿', items: BODY_SKILLS },

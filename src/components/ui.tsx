@@ -1,5 +1,6 @@
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useState, type InputHTMLAttributes, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { isNumberDraft, parseNumberText } from '../lib/numbers'
 
 export function Panel({ children, className = '', accent = false, onClick }: { children: ReactNode; className?: string; accent?: boolean; onClick?: () => void }) {
   return (
@@ -111,11 +112,49 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
   )
 }
 
+/**
+ * A number box that keeps what you're typing, so "58." stays on screen until you add the 4.
+ * Calls onChange with the number (null when empty).
+ */
+export function NumberInput({
+  value,
+  onChange,
+  decimal = true,
+  ...rest
+}: Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 'type' | 'inputMode'> & {
+  value: number | null | undefined
+  onChange: (v: number | null) => void
+  decimal?: boolean
+}) {
+  const v = value ?? null
+  const [text, setText] = useState(v === null ? '' : String(v))
+  const [seen, setSeen] = useState(v)
+  // The value changed from outside (e.g. a new suggestion): show it, unless it's what we're typing.
+  if (v !== seen) {
+    setSeen(v)
+    if (parseNumberText(text) !== v) setText(v === null ? '' : String(v))
+  }
+  return (
+    <input
+      {...rest}
+      type="text"
+      inputMode={decimal ? 'decimal' : 'numeric'}
+      value={text}
+      onChange={(e) => {
+        const t = e.target.value
+        if (!isNumberDraft(t, decimal)) return
+        setText(t)
+        const n = parseNumberText(t)
+        if (n !== undefined) onChange(n)
+      }}
+    />
+  )
+}
+
 export function NumField({
   value,
   onChange,
   placeholder,
-  step = 1,
   label,
   className = '',
   decimal = true,
@@ -123,7 +162,6 @@ export function NumField({
   value: number | null | undefined
   onChange: (v: number | null) => void
   placeholder?: string
-  step?: number
   label?: string
   className?: string
   decimal?: boolean
@@ -131,20 +169,7 @@ export function NumField({
   return (
     <label className={`block ${className}`}>
       {label && <span className="block text-sm text-muted mb-1">{label}</span>}
-      <input
-        className="px-input text-center"
-        type="text"
-        inputMode={decimal ? 'decimal' : 'numeric'}
-        value={value ?? ''}
-        step={step}
-        placeholder={placeholder}
-        onChange={(e) => {
-          const raw = e.target.value.replace(',', '.')
-          if (raw === '') return onChange(null)
-          const n = Number(raw)
-          if (!Number.isNaN(n)) onChange(n)
-        }}
-      />
+      <NumberInput className="px-input text-center" value={value} onChange={onChange} placeholder={placeholder} decimal={decimal} />
     </label>
   )
 }
