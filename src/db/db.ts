@@ -75,6 +75,11 @@ export function defaultSettings(): Settings {
     seenGear: null,
     skills: [],
     soundPack: 'arcade',
+    examsDefeated: [],
+    preseasonTasks: [],
+    seenPreseasonSummary: false,
+    specialTitle: null,
+    seenTitles: [],
   }
 }
 

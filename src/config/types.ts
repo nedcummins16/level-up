@@ -36,9 +36,11 @@ export interface Prescription {
   weekSwap?: { weeks: number[]; ex: string }
 }
 
-export type StrengthSlot = 'LA' | 'UA' | 'LB' | 'UB' | 'COMBO' | 'BA' | 'BB'
+export type StrengthSlot = 'LA' | 'UA' | 'LB' | 'UB' | 'COMBO' | 'BA' | 'BB' | PreseasonSlot
+/** Exam pre-season gym sessions (26 Oct - 15 Nov 2026). */
+export type PreseasonSlot = 'PA' | 'PB'
 export type CardioSlot = 'cardio' | 'tennis' | 'intervals' | 'sprints' | 'beachRun'
-export type Slot = StrengthSlot | CardioSlot
+export type Slot = StrengthSlot | CardioSlot | 'walk'
 
 export interface SessionTemplate {
   name: string
@@ -46,7 +48,7 @@ export interface SessionTemplate {
   kind: 'gym' | 'beach'
   /** Lower-body days can't be on back-to-back days. */
   lower: boolean
-  warmup: 'lower' | 'upper' | 'beach'
+  warmup: 'lower' | 'upper' | 'beach' | 'full'
   exercises: Prescription[]
 }
 
@@ -63,7 +65,7 @@ export interface PhaseDef {
   blurb: string
 }
 
-export type PhaseId = 'prestart' | 'foundation' | 'build' | 'beach' | 'push' | 'test' | 'repeat' | 'post'
+export type PhaseId = 'prestart' | 'exam' | 'foundation' | 'build' | 'beach' | 'push' | 'test' | 'repeat' | 'post'
 
 export type TestItemId =
   | 'bodyweight'
@@ -123,4 +125,45 @@ export interface FeelCard {
   feel: string
   /** Feeling it somewhere else? What it means + the fix. */
   wrong: { at: MuscleId; means: string; fix: string }[]
+}
+
+export interface Exam {
+  id: string
+  name: string
+  date: ISODate
+  /** "HH:MM", Melbourne time. */
+  start: string
+  end: string
+  boss: string
+  bossEmoji: string
+}
+
+/** One thing on a pre-season day. */
+export type PreseasonItem =
+  | { kind: 'exam'; exam: string }
+  | { kind: 'session'; slot: PreseasonSlot; label?: string }
+  | { kind: 'walk'; label: string; optional?: boolean }
+  | { kind: 'mobility' }
+  /** Tennis if it's on this week (same toggle as the main plan), otherwise rest. */
+  | { kind: 'tennis' }
+  | { kind: 'rest'; label?: string }
+  | { kind: 'task'; id: string; label: string }
+
+export interface PreseasonDay {
+  items: PreseasonItem[]
+  note?: string
+}
+
+/** Pre-season exercise weight → week-1 starting weight of a main-plan exercise. */
+export interface Handover {
+  from: string
+  to: string
+  /** Multiply the pre-season weight (default 1). */
+  factor?: number
+  /** Never suggest less than this (e.g. the empty 20 kg bar). */
+  min?: number
+  /** Round DOWN to this step. */
+  step?: number
+  /** Shown next to the number, e.g. "rough guide". */
+  note?: string
 }

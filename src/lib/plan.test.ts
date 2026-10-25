@@ -34,7 +34,8 @@ describe('program calendar', () => {
   it('has 12 weeks and the right phases', () => {
     expect(weekNumber('2026-11-16')).toBe(1)
     expect(weekNumber('2027-02-07')).toBe(12)
-    expect(getPhase('2026-11-15').id).toBe('prestart')
+    expect(getPhase('2026-10-25').id).toBe('prestart')
+    expect(getPhase('2026-11-15').id).toBe('exam')
     expect(getPhase('2026-12-06').id).toBe('foundation')
     expect(getPhase('2026-12-29').id).toBe('build')
     expect(getPhase('2026-12-30').id).toBe('beach')

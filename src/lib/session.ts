@@ -7,6 +7,7 @@ import type { ISODate } from './dates'
 import { adjustSets, dayMods, type DayMods } from './life'
 import { getPhase, weekNumber } from './plan'
 import { roundTo, suggest, type Performance, type Suggestion } from './progression'
+import { sameSeason } from './preseason'
 
 export interface PlannedExercise {
   planEx: string
@@ -98,7 +99,8 @@ export function planExercise(p: Prescription, ctx: SessionCtx, mods: DayMods, ex
   const ex = exOverride ?? resolveExercise(p, week, ctx.settings, mods)
   const info = exInfo(ex)
   const sets = adjustSets(p.sets, week === 1, mods)
-  const logs = exerciseLogs(ctx.sessions, ex, ctx.date, excludeId)
+  // Pre-season logs don't drive Week 1+ progression: your reviewed starting weights do.
+  const logs = exerciseLogs(sameSeason(ctx.sessions, ctx.date), ex, ctx.date, excludeId)
   const history = logs.map((l) => toPerformance(l.session, l.ex))
   const suggestion = suggest({
     equipment: info.equipment,
@@ -170,7 +172,9 @@ export function warmupSteps(slot: StrengthSlot, firstLift: RampLift | null): str
   const steps =
     t.warmup === 'beach'
       ? [...WARMUP.beach, ...WARMUP.after]
-      : [...WARMUP.common, ...(t.warmup === 'lower' ? WARMUP.lower : WARMUP.upper), ...WARMUP.after]
+      : t.warmup === 'full'
+        ? [...WARMUP.common, ...WARMUP.lower, ...WARMUP.upper, ...WARMUP.after]
+        : [...WARMUP.common, ...(t.warmup === 'lower' ? WARMUP.lower : WARMUP.upper), ...WARMUP.after]
   if (firstLift && t.kind === 'gym') steps.push(rampUpText(firstLift))
   return steps
 }

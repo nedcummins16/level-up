@@ -12,6 +12,7 @@ import { useApp } from '../state/app'
 import { ActiveSession } from './ActiveSession'
 import { LifeHappensButton, LifeBanners } from './LifeHappens'
 import { BossCard } from './Boss'
+import { ExamSeason } from './ExamSeason'
 
 export function Today() {
   const app = useApp()
@@ -20,6 +21,7 @@ export function Today() {
   if (active) return <ActiveSession key={active.id} session={active} />
 
   const phase = getPhase(today, data.settings.repeats)
+  if (phase.id === 'exam') return <ExamSeason />
   if (phase.id === 'prestart') return <PreStart />
   if (phase.id === 'post') return <PostProgram />
 

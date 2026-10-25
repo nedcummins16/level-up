@@ -12,6 +12,8 @@ import {
   BEACH_RAID,
   FREEZE,
   RAIDS,
+  SPECIAL_GEAR,
+  SPECIAL_TITLES,
   STATS,
   TEST_RAID,
   THEMES,
@@ -36,6 +38,7 @@ import { activeSkills, maxFreezes } from './skills'
 import { bestJumpReach, bossTrophies, computeDunk, computePhysique, type BossTrophy, type DunkState, type Physique } from './growth'
 import { isStrengthSlot, type WeekPlan } from './schedule'
 import { earnsStrengthXP } from './xp'
+import { preseasonAchievementDates, preseasonXP } from './preseason'
 
 export interface GameInput {
   settings: Settings
@@ -53,7 +56,7 @@ export interface XpEntry {
   date: ISODate
   amount: number
   reason: string
-  kind: 'set' | 'session' | 'cardio' | 'mobility' | 'quest' | 'checkin' | 'pr' | 'weekly' | 'raid' | 'achievement' | 'boss' | 'recovery' | 'comeback' | 'loot' | 'ontime'
+  kind: 'set' | 'session' | 'cardio' | 'mobility' | 'quest' | 'checkin' | 'pr' | 'weekly' | 'raid' | 'achievement' | 'boss' | 'recovery' | 'comeback' | 'loot' | 'ontime' | 'walk' | 'exam'
 }
 
 export interface StatBlock {
@@ -122,6 +125,8 @@ export interface GameState {
   freezeCap: number
   dunk: DunkState
   trophies: BossTrophy[]
+  /** Achievement titles you can pick (ids from SPECIAL_TITLES). */
+  titles: string[]
 }
 
 const CARDIO_SLOTS = new Set(['cardio', 'tennis', 'intervals', 'sprints', 'beachRun'])
@@ -245,7 +250,10 @@ export function raidFor(weekStart: ISODate, repeats: ISODate[]) {
   return RAIDS[(n - 1) % RAIDS.length]
 }
 
-export function computeGame(input: GameInput): GameState {
+export function computeGame(fullInput: GameInput): GameState {
+  // The exam pre-season is scored on its own (lib/preseason.ts): its sessions never count
+  // toward streaks, PRs, loot or the strength cap. Everything below is the main plan.
+  const input: GameInput = { ...fullInput, sessions: fullInput.sessions.filter((s) => s.date >= PROGRAM.start) }
   const { settings, sessions, daily, checkins, tests, life, today, planFor } = input
   const done = sessions.filter((s) => s.status === 'done')
   const ledger: XpEntry[] = []
@@ -437,8 +445,11 @@ export function computeGame(input: GameInput): GameState {
   for (const d of loot.drops) if (d.duplicate) add(d.date, LOOT.duplicateXP, 'Duplicate loot', 'loot')
   for (const s of onTimeSessions(sessions, input.appointments ?? [])) add(s.date, ON_TIME.xp, 'On time!', 'ontime')
 
+  // --- Exam pre-season: sessions, walks, exam quests, exam bosses
+  for (const e of preseasonXP({ sessions: fullInput.sessions, daily, settings, today })) add(e.date, e.amount, e.reason, e.kind)
+
   // --- Achievements
-  const ach = computeAchievements(input, prs, weeks)
+  const ach = computeAchievements(input, prs, weeks, fullInput.sessions)
   for (const a of ach) if (a.unlocked) add(a.date ?? today, XP.achievement, `Achievement: ${a.name}`, 'achievement')
 
   // Week XP totals
@@ -469,16 +480,21 @@ export function computeGame(input: GameInput): GameState {
     bossesBeaten,
     physique: computePhysique(daily, (d) => computeStats(input, d).STR, today),
     loot,
-    gearUnlocked: [...COSMETICS.filter((c) => c.level <= lv.level).map((c) => c.id), ...specialGearUnlocked(best, loot.setsComplete)],
+    gearUnlocked: [
+      ...COSMETICS.filter((c) => c.level <= lv.level).map((c) => c.id),
+      ...specialGearUnlocked(best, loot.setsComplete),
+      ...SPECIAL_GEAR.filter((g) => g.achievement && ach.some((a) => a.id === g.achievement && a.unlocked)).map((g) => g.id),
+    ],
     gymItems: HOME_GYM.filter((g) => g.level <= lv.level).map((g) => g.id),
     skills: [...activeSkills(settings.skills ?? [], lv.level)],
     freezeCap,
     dunk: computeDunk(tests, daily),
     trophies: bossTrophies(tests),
+    titles: SPECIAL_TITLES.filter((t) => ach.some((a) => a.id === t.achievement && a.unlocked)).map((t) => t.id),
   }
 }
 
-function computeAchievements(input: GameInput, prs: PREvent[], weeks: WeekResult[]) {
+function computeAchievements(input: GameInput, prs: PREvent[], weeks: WeekResult[], allSessions: WorkoutSession[]) {
   const { sessions, daily, tests, settings, today } = input
   const done = sessions.filter((s) => s.status === 'done').sort((a, b) => (a.date < b.date ? -1 : 1))
   const firstDate = (pred: (s: WorkoutSession) => boolean) => done.find(pred)?.date
@@ -503,6 +519,7 @@ function computeAchievements(input: GameInput, prs: PREvent[], weeks: WeekResult
   const beachSessions = done.filter((s) => (s.slot === 'BA' || s.slot === 'BB') && s.date >= PROGRAM.beach.start && s.date <= PROGRAM.beach.end)
   const beachSurvivor = beachSessions.length >= 6 ? beachSessions[5].date : undefined
   const neverTwice = neverMissedTwice(input, weeks)
+  const pre = preseasonAchievementDates(allSessions, settings)
 
   const dates: Record<AchievementId, string | undefined> = {
     firstSession: firstDate((s) => isStrengthSlot(s.slot)),
@@ -518,6 +535,8 @@ function computeAchievements(input: GameInput, prs: PREvent[], weeks: WeekResult
     beachSurvivor,
     neverTwice,
     dunk: settings.dunk ? today : undefined,
+    examSlayer: pre.examSlayer,
+    preseasonDone: pre.preseasonDone,
   }
   return ACHIEVEMENTS.map((a) => ({ ...a, unlocked: !!dates[a.id], date: dates[a.id] && dates[a.id]! > today ? today : dates[a.id] }))
 }

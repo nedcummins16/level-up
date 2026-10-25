@@ -3,7 +3,7 @@ import { AddToCalendar } from '../components/Appointments'
 import { Character } from '../components/Character'
 import { FeelCardView } from '../components/FeelIt'
 import { Btn, H, NumField, Panel, Sheet, Toggle } from '../components/ui'
-import { CELEBRATION_TIERS, COSMETICS, LOOT, SKILLS, SOUND_PACKS, SPECIAL_GEAR, THEMES, TITLES } from '../config/game'
+import { ACHIEVEMENTS, CELEBRATION_TIERS, COSMETICS, LOOT, SKILLS, SOUND_PACKS, SPECIAL_GEAR, SPECIAL_TITLES, THEMES, TITLES } from '../config/game'
 import { SkillTree } from '../components/SkillTree'
 import { sfx } from '../lib/sound'
 import { EXERCISES, PROGRAM, SESSIONS } from '../config/program'
@@ -99,8 +99,21 @@ function HeroSettings() {
           <label className="block text-sm text-muted mb-1">Name</label>
           <input className="px-input mb-2" value={name} maxLength={16} onChange={(e) => setName(e.target.value)} onBlur={() => void updateSettings({ heroName: name.trim() || 'Hero' })} />
           <label className="block text-sm text-muted mb-1">Title</label>
-          <select className="px-input" value={s.titleLevel ?? ''} onChange={(e) => void updateSettings({ titleLevel: e.target.value ? Number(e.target.value) : null })}>
+          <select
+            className="px-input"
+            value={s.specialTitle && game.titles.includes(s.specialTitle) ? `x:${s.specialTitle}` : (s.titleLevel ?? '')}
+            onChange={(e) => {
+              const v = e.target.value
+              if (v.startsWith('x:')) void updateSettings({ specialTitle: v.slice(2) })
+              else void updateSettings({ specialTitle: null, titleLevel: v ? Number(v) : null })
+            }}
+          >
             <option value="">Latest ({game.title})</option>
+            {SPECIAL_TITLES.filter((t) => game.titles.includes(t.id)).map((t) => (
+              <option key={t.id} value={`x:${t.id}`}>
+                {t.name} ★
+              </option>
+            ))}
             {TITLES.slice(0, game.level).map((t, i) => (
               <option key={t} value={i + 1}>
                 {t}
@@ -134,7 +147,11 @@ function HeroSettings() {
           ...SPECIAL_GEAR.filter((g) => g.slot === slot).map((g) => ({
             id: g.id,
             name: g.name,
-            lock: g.streak ? `${g.streak}-week streak` : `${LOOT.sets.find((x) => x.id === g.set)?.name} set`,
+            lock: g.streak
+              ? `${g.streak}-week streak`
+              : g.achievement
+                ? `${ACHIEVEMENTS.find((a) => a.id === g.achievement)?.name} badge`
+                : `${LOOT.sets.find((x) => x.id === g.set)?.name} set`,
           })),
         ]
         return (
@@ -236,7 +253,7 @@ function StartWeights() {
   return (
     <Panel>
       <H>Starting weights</H>
-      <p className="text-sm text-muted mb-2">Pick weights you could lift for the top of the rep range with 3+ reps to spare. After your first session the app suggests weights.</p>
+      <p className="text-sm text-muted mb-2">Pick weights you could lift for the top of the rep range with 3+ reps to spare. Your exam pre-season sessions fill most of these in for you. After your first session the app suggests weights.</p>
       <Btn variant="ghost" className="w-full" onClick={() => setOpen(!open)}>
         {open ? 'Hide' : `Edit (${Object.keys(sw).length} set)`}
       </Btn>

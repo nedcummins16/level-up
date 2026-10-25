@@ -3,6 +3,7 @@ import { db, updateSettings } from '../db/db'
 import type { DailyLog, LifeEvent, LifeType, WorkoutSession } from '../db/types'
 import { addDays, type ISODate } from '../lib/dates'
 import { makeLifeEvent } from '../lib/life'
+import { applyHandover, isPreseasonSlot } from '../lib/preseason'
 import { newStrengthSession, type SessionPlan } from '../lib/session'
 
 export async function startStrength(plan: SessionPlan, date: ISODate, replaces?: StrengthSlot) {
@@ -17,6 +18,46 @@ export async function saveSession(s: WorkoutSession) {
 
 export async function finishSession(id: number) {
   await db.sessions.update(id, { status: 'done', finishedAt: Date.now() })
+  // Pre-season: the weights you just used become your suggested Week 1 starting weights.
+  const s = await db.sessions.get(id)
+  if (s && isPreseasonSlot(s.slot)) await updateSettings((cur) => ({ startWeights: applyHandover(cur.startWeights, s) }))
+}
+
+/** A walk (exam pre-season). Counts as a completed day. */
+export async function logWalk(date: ISODate, minutes: number | null, label: string) {
+  await db.sessions.add({
+    date,
+    slot: 'walk',
+    status: 'done',
+    startedAt: Date.now(),
+    finishedAt: Date.now(),
+    modifiers: [],
+    multiplier: 1,
+    reduced: false,
+    exercises: [],
+    warmupDone: [],
+    minutes: minutes ?? undefined,
+    label,
+  })
+}
+
+/** Exam pre-season: mark an exam boss as defeated (you sat it), or undo. */
+export async function setExamDefeated(examId: string, on: boolean) {
+  await updateSettings((s) => {
+    const next = new Set(s.examsDefeated)
+    if (on) next.add(examId)
+    else next.delete(examId)
+    return { examsDefeated: [...next] }
+  })
+}
+
+export async function setPreseasonTask(id: string, on: boolean) {
+  await updateSettings((s) => {
+    const next = new Set(s.preseasonTasks)
+    if (on) next.add(id)
+    else next.delete(id)
+    return { preseasonTasks: [...next] }
+  })
 }
 
 export async function deleteSession(id: number) {

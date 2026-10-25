@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { CELEBRATION_TIERS, COSMETICS, DUNK, LOOT, SPECIAL_GEAR, UNLOCKABLES, XP, titleFor } from '../config/game'
+import { CELEBRATION_TIERS, COSMETICS, DUNK, LOOT, SPECIAL_GEAR, SPECIAL_TITLES, UNLOCKABLES, XP, titleFor } from '../config/game'
 import { RARITY } from './Loot'
 import { updateSettings } from '../db/db'
 import { useApp } from '../state/app'
@@ -120,16 +120,24 @@ export function GameWatcher() {
       for (const id of freshGear) {
         const g = SPECIAL_GEAR.find((x) => x.id === id)!
         cosmetics[g.slot] = g.id
-        fx.celebrate({ kind: 'gear', title: g.name, sub: g.streak ? `Earned with a ${g.streak}-week streak. Equipped!` : 'Set complete! Equipped!', icon: '🎽' })
+        fx.celebrate({ kind: 'gear', title: g.name, sub: g.streak ? `Earned with a ${g.streak}-week streak. Equipped!` : g.achievement ? 'Badge reward. Equipped!' : 'Set complete! Equipped!', icon: g.id === 'grad-cap' ? '🎓' : '🎽' })
         h.gear.add(id)
       }
       patch.cosmetics = cosmetics
       patch.seenGear = [...h.gear]
     }
 
+    // Achievement titles (e.g. Exam Slayer): wear it once when earned; change it in More → Hero.
+    const freshTitles = game.titles.filter((id) => !s.seenTitles.includes(id))
+    if (freshTitles.length) {
+      const t = SPECIAL_TITLES.find((x) => x.id === freshTitles[freshTitles.length - 1])!
+      patch.specialTitle = t.id
+      patch.seenTitles = [...s.seenTitles, ...freshTitles]
+    }
+
     if (Object.keys(patch).length) void updateSettings(patch)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [game.level, game.achievements, game.physique.bulk, game.physique.str, game.dunk.reached.length, game.loot.drops.length, game.gearUnlocked.length])
+  }, [game.level, game.achievements, game.physique.bulk, game.physique.str, game.dunk.reached.length, game.loot.drops.length, game.gearUnlocked.length, game.titles.length])
 
   return null
 }

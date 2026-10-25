@@ -13,6 +13,8 @@ import { toggleTennis } from '../state/actions'
 import { useApp } from '../state/app'
 import { useFx } from '../state/fx'
 import { WeekResults } from './WeekResults'
+import { PreseasonWeek } from './ExamSeason'
+import { isPreseason } from '../lib/preseason'
 
 export function Week() {
   const { today, planFor, data, game } = useApp()
@@ -44,7 +46,7 @@ export function Week() {
           ◀
         </button>
         <div className="flex-1 text-center">
-          <div className="font-pixel text-[18px] text-accent">{ws < PROGRAM.start ? 'PRE-SEASON' : `WEEK ${weekNumber(ws)}`}</div>
+          <div className="font-pixel text-[18px] text-accent">{isPreseason(ws) ? 'EXAM SEASON' : ws < PROGRAM.start ? 'PRE-SEASON' : `WEEK ${weekNumber(ws)}`}</div>
           <div className="text-sm text-muted">
             {fmtShort(ws)}–{fmtShort(end)} · {phase.name}
           </div>
@@ -75,7 +77,7 @@ export function Week() {
         </Panel>
       )}
 
-      <Panel>
+      {isPreseason(ws) ? <PreseasonWeek weekStart={ws} /> : <Panel>
         {plan.days.map((d) => (
           <div key={d.date} className={`py-2 border-b border-edge/40 ${d.date === today ? 'bg-panel-2 -mx-3 px-3' : ''}`}>
             <div className="flex gap-3">
@@ -113,7 +115,7 @@ export function Week() {
           </div>
         )}
         {hasSat && end >= today && <Toggle on={tennisOn} onChange={(on) => void toggleTennis(ws, on)} label={<span className="text-sm">🎾 Tennis on this week (else intervals)</span>} />}
-      </Panel>
+      </Panel>}
 
       {canCheckin && (
         <Panel accent>

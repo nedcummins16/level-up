@@ -5,7 +5,7 @@
 //  Rest times are in seconds. Dates are "YYYY-MM-DD" (Melbourne local).
 // ============================================================================
 
-import type { ExerciseInfo, PhaseDef, SessionTemplate, StrengthSlot, TestDay, TestItemId } from './types'
+import type { Exam, ExerciseInfo, Handover, PhaseDef, PreseasonDay, SessionTemplate, StrengthSlot, TestDay, TestItemId } from './types'
 
 export const PROGRAM = {
   start: '2026-11-16', // Mon, Week 1
@@ -39,6 +39,72 @@ export const PROGRAM = {
   repeatWeeks: 4,
   defaultMachineStep: 5,
   body: { startKg: 58, goalKg: 63, protein: 120, steps: '8-10k' },
+}
+
+// ---------------------------------------------------------------------------
+//  EXAM PRE-SEASON (Mon 26 Oct - Sun 15 Nov 2026)
+//  VCE exams come first. Light sessions, lots of walks, nothing that costs sleep.
+//  No gym on an exam day or the day before one (worked out from EXAMS below).
+// ---------------------------------------------------------------------------
+export const PRESEASON = {
+  start: '2026-10-26',
+  end: '2026-11-15',
+  rir: 'RIR 3-4',
+  blurb: 'Exams first. 2 easy sets of everything, then go home and study.',
+  /** Shown on your first pre-season session. */
+  firstSessionTip: 'Ask the staff at your induction to check your goblet squat and Romanian deadlift.',
+  /** "Pre-season Done" badge: this many of the 6 sessions. */
+  doneTarget: 4,
+
+  exams: [
+    { id: 'english', name: 'English', date: '2026-10-27', start: '09:00', end: '12:15', boss: 'The Essay Hydra', bossEmoji: '🐍' },
+    { id: 'vet', name: 'VET Engineering', date: '2026-11-04', start: '09:00', end: '10:15', boss: 'The Gearwork Golem', bossEmoji: '⚙️' },
+    { id: 'methods1', name: 'Methods 1', date: '2026-11-05', start: '09:00', end: '10:15', boss: 'The Tech-Free Lich', bossEmoji: '🧮' },
+    { id: 'methods2', name: 'Methods 2', date: '2026-11-06', start: '11:45', end: '14:00', boss: 'The CAS Colossus', bossEmoji: '📟' },
+    { id: 'physics', name: 'Physics', date: '2026-11-12', start: '09:00', end: '11:45', boss: 'The Quantum Wraith', bossEmoji: '⚛️' },
+  ] as Exam[],
+
+  days: {
+    '2026-10-26': { items: [{ kind: 'walk', label: 'Walk 20-30 min' }, { kind: 'mobility' }], note: 'Light review only; in bed by 10pm' },
+    '2026-10-27': { items: [{ kind: 'exam', exam: 'english' }, { kind: 'walk', label: 'Easy walk or jog in the afternoon', optional: true }], note: 'Evening off' },
+    '2026-10-28': { items: [{ kind: 'task', id: 'induction', label: 'Sign up + gym induction' }, { kind: 'session', slot: 'PA' }] },
+    '2026-10-29': { items: [{ kind: 'walk', label: 'Walk 20-30 min' }, { kind: 'mobility' }] },
+    '2026-10-30': { items: [{ kind: 'session', slot: 'PB' }] },
+    '2026-10-31': { items: [{ kind: 'tennis' }] },
+    '2026-11-01': { items: [{ kind: 'rest' }, { kind: 'walk', label: 'Walk 20-30 min' }] },
+    '2026-11-02': { items: [{ kind: 'session', slot: 'PA' }], note: 'Last session before the exam block' },
+    '2026-11-03': { items: [{ kind: 'walk', label: 'Walk 20-30 min' }], note: 'In bed by 10pm' },
+    '2026-11-04': { items: [{ kind: 'exam', exam: 'vet' }, { kind: 'walk', label: '20-min walk after the exam' }] },
+    '2026-11-05': { items: [{ kind: 'exam', exam: 'methods1' }, { kind: 'walk', label: '20-min walk after the exam' }], note: 'In bed by 10pm' },
+    '2026-11-06': { items: [{ kind: 'exam', exam: 'methods2' }, { kind: 'rest' }], note: 'Evening off' },
+    '2026-11-07': { items: [{ kind: 'session', slot: 'PB', label: 'Pre-season B (morning)' }, { kind: 'tennis' }] },
+    '2026-11-08': { items: [{ kind: 'rest' }, { kind: 'walk', label: 'Walk 20-30 min' }] },
+    '2026-11-09': { items: [{ kind: 'session', slot: 'PA' }] },
+    '2026-11-10': { items: [{ kind: 'walk', label: 'Walk 20-30 min' }, { kind: 'mobility' }] },
+    '2026-11-11': { items: [{ kind: 'walk', label: 'Walk 20-30 min' }], note: 'In bed by 10pm' },
+    '2026-11-12': { items: [{ kind: 'exam', exam: 'physics' }, { kind: 'walk', label: 'Walk after the exam' }], note: 'Exams done' },
+    '2026-11-13': { items: [{ kind: 'session', slot: 'PB' }], note: 'Record starting weights' },
+    '2026-11-14': { items: [{ kind: 'tennis' }] },
+    '2026-11-15': { items: [{ kind: 'rest' }, { kind: 'task', id: 'packBag', label: 'Pack your gym bag' }], note: 'Week 1 starts tomorrow' },
+  } as Record<string, PreseasonDay>,
+
+  /**
+   * Starting weights: the last weight you log for each pre-season exercise becomes
+   * the suggested week-1 weight of the matching main-plan exercise (editable).
+   * Dumbbell → barbell is a cautious estimate: rounded DOWN, never below the bar.
+   */
+  handover: [
+    { from: 'gobletSquat', to: 'gobletSquat' }, // Lower A weeks 1-2 use goblet squat
+    { from: 'dbBench', to: 'benchPress', factor: 1.6, min: 20, step: 2.5, note: 'rough guide: both DBs × 0.8' },
+    { from: 'latPulldown', to: 'latPulldown' },
+    { from: 'dbRdl', to: 'rdl', factor: 2, min: 20, step: 2.5, note: 'estimate: both DBs added' },
+    { from: 'seatedCableRow', to: 'chestSupportedRow' },
+    { from: 'legPress', to: 'legPress' },
+    { from: 'inclineDbPress', to: 'inclineDbPress' },
+    { from: 'pullUp', to: 'pullUp' },
+    { from: 'hipThrust', to: 'hipThrust' },
+    { from: 'facePull', to: 'facePull' },
+  ] as Handover[],
 }
 
 export const PHASES: PhaseDef[] = [
@@ -292,6 +358,37 @@ export const SESSIONS: Record<StrengthSlot, SessionTemplate> = {
       { ex: 'slGluteBridge', sets: 3, reps: [15, 15], rest: 45 },
       { ex: 'bandCurlPushdown', sets: 3, reps: [15, 15], rest: 45 },
       { ex: 'sidePlank', sets: 3, reps: [30, 30], rest: 45 },
+    ],
+  },
+  // Exam pre-season: ~40 min with the warm-up. 2 easy sets, RIR 3-4, 90 s rest.
+  PA: {
+    name: 'Pre-season A',
+    short: 'PA',
+    kind: 'gym',
+    lower: false,
+    warmup: 'full',
+    exercises: [
+      { ex: 'gobletSquat', sets: 2, reps: [10, 10], rest: 90 },
+      { ex: 'dbBench', sets: 2, reps: [8, 10], rest: 90 },
+      { ex: 'latPulldown', sets: 2, reps: [10, 10], rest: 90 },
+      { ex: 'dbRdl', sets: 2, reps: [10, 10], rest: 90 },
+      { ex: 'seatedCableRow', sets: 2, reps: [10, 10], rest: 90 },
+      { ex: 'deadBug', sets: 2, reps: [8, 8], rest: 90 },
+    ],
+  },
+  PB: {
+    name: 'Pre-season B',
+    short: 'PB',
+    kind: 'gym',
+    lower: false,
+    warmup: 'full',
+    exercises: [
+      { ex: 'legPress', sets: 2, reps: [10, 10], rest: 90 },
+      { ex: 'inclineDbPress', sets: 2, reps: [8, 10], rest: 90 },
+      { ex: 'pullUp', sets: 2, reps: [6, 8], rest: 90 },
+      { ex: 'hipThrust', sets: 2, reps: [10, 10], rest: 90 },
+      { ex: 'facePull', sets: 2, reps: [12, 12], rest: 90 },
+      { ex: 'sidePlank', sets: 2, reps: [20, 20], rest: 90 },
     ],
   },
 }

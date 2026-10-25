@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ON_TIME, XP } from '../config/game'
+import { ON_TIME, PRESEASON_XP, XP } from '../config/game'
 import { melbourneMinutes } from '../lib/loot'
 import { EXERCISES, SESSIONS } from '../config/program'
 import type { StrengthSlot } from '../config/types'
@@ -13,7 +13,9 @@ import { defaultReps, exerciseLogs, exInfo, planExercise, rampUpText, repsLabel,
 import { sfx, unlockAudio } from '../lib/sound'
 import { useWakeLock } from '../lib/wakeLock'
 import { earnsStrengthXP } from '../lib/xp'
-import { deleteSession, finishSession, saveSession } from '../state/actions'
+import { deleteSession, finishSession, patchDaily, saveSession } from '../state/actions'
+import { isPreseasonSlot, preseasonSessionsDone, sameSeason } from '../lib/preseason'
+import { PRESEASON } from '../config/program'
 import { useApp } from '../state/app'
 import { useFx } from '../state/fx'
 import { useTimer } from '../state/timer'
@@ -43,7 +45,11 @@ export function ActiveSession({ session }: { session: WorkoutSession }) {
 
   const template = SESSIONS[s.slot as StrengthSlot]
   const mods = useMemo(() => dayMods(app.data.life, s.date, app.data.settings.repeats, SORE_BACK_SWAPS), [app.data.life, s.date, app.data.settings.repeats])
-  const earns = earnsStrengthXP(s, app.data.sessions)
+  // Exam pre-season sessions: flat XP, no per-set XP or PR fanfare, own history.
+  const pre = isPreseasonSlot(s.slot)
+  const earns = !pre && earnsStrengthXP(s, app.data.sessions)
+  const history = sameSeason(app.data.sessions, s.date)
+  const firstPre = pre && preseasonSessionsDone(app.data.sessions.filter((x) => x.id !== s.id)).length === 0
   const ctx = app.sessionCtx(s.date)
   const warmup = useMemo(() => {
     const first = s.exercises.find((e) => e.rampUp)
@@ -78,7 +84,7 @@ export function ActiveSession({ session }: { session: WorkoutSession }) {
       updateSet(ei, si, { done: false, doneAt: undefined })
       return
     }
-    const last = exerciseLogs(app.data.sessions, e.ex, s.date, s.id).pop()?.ex ?? null
+    const last = exerciseLogs(history, e.ex, s.date, s.id).pop()?.ex ?? null
     const reps = set.reps ?? defaultReps(e, si, last)
     if (reps === null) {
       alert(e.reps === 'max-2' ? 'Enter how many reps you did' : 'Enter reps')
@@ -96,9 +102,9 @@ export function ActiveSession({ session }: { session: WorkoutSession }) {
     if (earns) fx.floatXP(XP.set)
 
     // PR check: one PR per exercise per session.
-    const best = bestFor(app.data.sessions.filter((x) => x.status === 'done'), e.ex, e.equipment, s.id)
+    const best = bestFor(history.filter((x) => x.status === 'done'), e.ex, e.equipment, s.id)
     const earlierPR = e.sets.some((x, j) => j !== si && x.done && isPR(best, x, e.equipment))
-    if (!earlierPR && isPR(best, doneSet, e.equipment)) {
+    if (!pre && !earlierPR && isPR(best, doneSet, e.equipment)) {
       const what = prText({ weight, reps, equipment: e.equipment })
       fx.celebrate({ kind: 'pr', title: e.name, sub: what, icon: '🏆', xp: XP.pr })
     }
@@ -148,7 +154,7 @@ export function ActiveSession({ session }: { session: WorkoutSession }) {
   const elapsed = Math.floor((Date.now() - s.startedAt) / 60000)
 
   const skills = new Set(app.game.skills)
-  const doneSessions = app.data.sessions.filter((x) => x.status === 'done')
+  const doneSessions = history.filter((x) => x.status === 'done')
   const appt = app.data.appointments.find((a) => a.date === s.date)
   const onTime = !!appt && earns && (() => {
     const [h, m] = appt.time.split(':').map(Number)
@@ -159,7 +165,8 @@ export function ActiveSession({ session }: { session: WorkoutSession }) {
     timer.stop()
     await finishSession(s.id!)
     setConfirmFinish(false)
-    fx.celebrate({ kind: 'session', title: `${template.name} complete`, sub: `${doneSets} sets in ${elapsed} min${onTime ? ` · ON TIME +${ON_TIME.xp} XP` : ''}${earns ? '' : ' (weekly XP cap reached: rest is gains too)'}`, icon: '⚔️', xp: earns ? XP.session : 0 })
+    if (pre) fx.celebrate({ kind: 'session', title: `${template.name} complete`, sub: `${doneSets} sets in ${elapsed} min. Weights saved for Week 1. Back to the books!`, icon: '📚', xp: PRESEASON_XP.session })
+    else fx.celebrate({ kind: 'session', title: `${template.name} complete`, sub: `${doneSets} sets in ${elapsed} min${onTime ? ` · ON TIME +${ON_TIME.xp} XP` : ''}${earns ? '' : ' (weekly XP cap reached: rest is gains too)'}`, icon: '⚔️', xp: earns ? XP.session : 0 })
     app.go('home')
   }
 
@@ -204,7 +211,9 @@ export function ActiveSession({ session }: { session: WorkoutSession }) {
             ))}
           </Panel>
         )}
-        {!earns && <Panel className="!bg-panel-2 text-sm">🛑 You've already done {XP.strengthCapPerWeek} strength sessions this week. This one is logged, but earns no XP. Recovery is part of the plan!</Panel>}
+        {firstPre && <Panel className="!bg-panel-2 text-sm">👋 First session! {PRESEASON.firstSessionTip}</Panel>}
+        {pre && <Panel className="!bg-panel-2 text-sm">Easy does it: 2 sets, {PRESEASON.rir} (stop with 3-4 reps left), 90 s rest. Exams come first.</Panel>}
+        {!earns && !pre && <Panel className="!bg-panel-2 text-sm">🛑 You've already done {XP.strengthCapPerWeek} strength sessions this week. This one is logged, but earns no XP. Recovery is part of the plan!</Panel>}
 
         {mods.maxExercises === 1 && firstExDone && (
           <Panel accent className="text-center">
@@ -241,9 +250,9 @@ export function ActiveSession({ session }: { session: WorkoutSession }) {
               total={s.exercises.length}
               skills={skills}
               best={bestFor(doneSessions, e.ex, e.equipment, s.id)}
-              trend={skills.has('trend') ? e1rmTrend(app.data.sessions, e.ex, s.date) : null}
+              trend={skills.has('trend') ? e1rmTrend(history, e.ex, s.date) : null}
               e={e}
-              last={exerciseLogs(app.data.sessions, e.ex, s.date, s.id).pop() ?? null}
+              last={exerciseLogs(history, e.ex, s.date, s.id).pop() ?? null}
               onSet={(si, patch, prop) => updateSet(ei, si, patch, prop)}
               onComplete={(si) => completeSet(ei, si)}
               onAdd={() => addSet(ei)}
@@ -278,6 +287,21 @@ export function ActiveSession({ session }: { session: WorkoutSession }) {
         <Btn variant="ghost" className="w-full mb-3" onClick={() => { setMenu(false); app.go('today') }}>
           Minimise (keep going later)
         </Btn>
+        {pre && (
+          <Btn
+            variant="ghost"
+            className="w-full mb-3"
+            onClick={async () => {
+              if (!confirm('Skip this session for study? Nothing is lost.')) return
+              timer.stop()
+              await deleteSession(s.id!)
+              await patchDaily(s.date, { studySkip: true })
+              setMenu(false)
+            }}
+          >
+            📚 Skip for study
+          </Btn>
+        )}
         <Btn
           variant="danger"
           className="w-full"

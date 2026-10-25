@@ -151,6 +151,15 @@ export function buildSprite(build: Build, cosmetics: Record<string, string> = {}
     set(CX - 6, 3, '#1a7a99')
     set(CX - 7, 3, '#1a7a99')
   }
+  if (head === 'grad-cap') {
+    // Mortarboard: wide flat board, skull cap, gold button + tassel on the right.
+    span(0, 6, '#2e2e40')
+    span(1, 4, '#1f1f2e')
+    set(CX - 1, 0, '#ffd23f')
+    set(CX, 0, '#ffd23f')
+    for (const y of [1, 2, 3]) set(CX + 5, y, '#ffd23f')
+    set(CX + 5, 4, '#ffb000')
+  }
   if (head === 'crown') {
     span(1, 3, '#ffd23f')
     for (const x of [CX - 3, CX - 1, CX, CX + 2]) set(x, 0, '#ffd23f')

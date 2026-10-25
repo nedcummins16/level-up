@@ -1,6 +1,6 @@
 // Turns the program config into "what's planned on date X" (before any Life Happens shifting).
 
-import { CARDIO, INTERVALS, PHASES, PROGRAM, REPEAT_PHASE, REPEAT_TEST_ITEMS, SESSIONS, TEST_DAYS } from '../config/program'
+import { CARDIO, INTERVALS, PHASES, PRESEASON, PROGRAM, REPEAT_PHASE, REPEAT_TEST_ITEMS, SESSIONS, TEST_DAYS } from '../config/program'
 import type { PhaseDef, Slot, StrengthSlot, TestDay } from '../config/types'
 import { addDays, diffDays, isBetween, mondayOf, rangeDays, weekday, type ISODate } from './dates'
 
@@ -59,6 +59,8 @@ export interface PhaseInfo extends PhaseDef {
 }
 
 export function getPhase(d: ISODate, repeats: ISODate[] = []): PhaseInfo {
+  if (isBetween(d, PRESEASON.start, PRESEASON.end))
+    return { id: 'exam', name: 'Exam Pre-season', start: PRESEASON.start, end: PRESEASON.end, rir: PRESEASON.rir, blurb: PRESEASON.blurb }
   if (d < PROGRAM.start) return { id: 'prestart', name: 'Pre-season', start: '0000-01-01', end: addDays(PROGRAM.start, -1), rir: '-', blurb: '' }
   for (const p of PHASES) if (isBetween(d, p.start, p.end)) return p
   for (const c of repeatCycles(repeats)) {
@@ -130,7 +132,8 @@ export function basePlan(d: ISODate, s: PlanSettings): PlanItem[] {
   const wd = weekday(d)
   const test = testDayOn(d, s.repeats)
 
-  if (phase.id === 'prestart' || phase.id === 'post') return []
+  // The exam pre-season has its own day plan (lib/preseason.ts) and never touches streaks.
+  if (phase.id === 'prestart' || phase.id === 'exam' || phase.id === 'post') return []
 
   if (phase.id === 'test') {
     if (test) return [testItem(test, true)]

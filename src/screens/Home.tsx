@@ -9,7 +9,7 @@ import { RaidCard } from '../components/RaidCard'
 import { TimePlace } from '../components/Appointments'
 import { appointmentFor, fmtTime } from '../lib/appointments'
 import { Badge, Bar, Btn, Check, NumField, Panel, Sheet } from '../components/ui'
-import { ACHIEVEMENTS, TITLES, xpToNext } from '../config/game'
+import { ACHIEVEMENTS, SPECIAL_TITLES, TITLES, xpToNext } from '../config/game'
 import { updateSettings } from '../db/db'
 import { PROGRAM } from '../config/program'
 import { avg7 } from '../lib/body'
@@ -18,6 +18,7 @@ import { allTestDays, getPhase, weekNumber } from '../lib/plan'
 import { patchDaily } from '../state/actions'
 import { useApp } from '../state/app'
 import { WeekResultsGate } from './WeekResults'
+import { ExamNextMatch, PreseasonSummaryGate, PreseasonTomorrow } from './ExamSeason'
 
 const STAT_INFO: Record<string, { name: string; color: string; emoji: string }> = {
   STR: { name: 'Strength', color: '#ff5a5a', emoji: '💪' },
@@ -33,16 +34,18 @@ export function Home() {
   const [trophies, setTrophies] = useState(false)
   const s = data.settings
   const phase = getPhase(today, s.repeats)
-  const title = s.titleLevel && s.titleLevel <= game.level ? TITLES[s.titleLevel - 1] : game.title
+  const special = s.specialTitle && game.titles.includes(s.specialTitle) ? SPECIAL_TITLES.find((t) => t.id === s.specialTitle)?.name : undefined
+  const title = special ?? (s.titleLevel && s.titleLevel <= game.level ? TITLES[s.titleLevel - 1] : game.title)
   const active = data.sessions.find((x) => x.status === 'active')
   const unlockedCount = game.achievements.filter((a) => a.unlocked).length
 
   return (
     <div className="px-4 pt-safe pb-32">
       <WeekResultsGate />
+      <PreseasonSummaryGate />
       <div className="flex justify-between items-baseline mt-2 font-pixel text-[12px] tracking-[0.2em] text-muted">
         <span className="truncate">SELECT · {s.heroName.toUpperCase()}</span>
-        <span className="shrink-0 ml-2">{phase.id === 'prestart' ? 'PRE-SEASON' : `WEEK ${weekNumber(today)} · ${phase.name.toUpperCase()}`}</span>
+        <span className="shrink-0 ml-2">{phase.id === 'exam' ? 'EXAM SEASON' : phase.id === 'prestart' ? 'PRE-SEASON' : `WEEK ${weekNumber(today)} · ${phase.name.toUpperCase()}`}</span>
       </div>
 
       {/* Character select stage */}
@@ -87,7 +90,7 @@ export function Home() {
         <Bar value={game.xpInLevel} max={game.xpForNext} />
       </div>
 
-      <NextMatch active={!!active} onGo={() => go('today')} />
+      {phase.id === 'exam' ? <ExamNextMatch onGo={() => go('today')} /> : <NextMatch active={!!active} onGo={() => go('today')} />}
 
       {/* Attributes */}
       <Panel>
@@ -113,7 +116,7 @@ export function Home() {
         )}
       </Panel>
 
-      <Tomorrow />
+      {phase.id === 'exam' ? <PreseasonTomorrow /> : <Tomorrow />}
       <DailyQuests />
       <WeighIn />
       <RaidCard />

@@ -48,6 +48,16 @@ export interface Settings {
   /** Skill tree: unlocked skill ids. */
   skills: string[]
   soundPack: string
+  /** Exam pre-season: exam ids you've marked as defeated (sat). */
+  examsDefeated: string[]
+  /** Exam pre-season: ticked tasks (e.g. "induction", "packBag"). */
+  preseasonTasks: string[]
+  /** The end-of-pre-season summary has been shown. */
+  seenPreseasonSummary: boolean
+  /** Achievement title you picked (e.g. "examSlayer"); overrides titleLevel. */
+  specialTitle: string | null
+  /** Special titles already auto-equipped once. */
+  seenTitles: string[]
 }
 
 /** When and where you'll train on a date (implementation intention). */
@@ -144,6 +154,12 @@ export interface DailyLog {
   meals?: string[]
   /** Gym bag packed (stored on the day you'll train). */
   bag?: boolean
+  /** Exam-season quests (tap yes/no). */
+  sleep8?: boolean | null
+  study9?: boolean | null
+  noCaffeine?: boolean | null
+  /** Pre-season session skipped for study (costs nothing). */
+  studySkip?: boolean
   /** Optional jump check: standing reach and best jump touch height (cm). */
   standReach?: number | null
   jumpTouch?: number | null

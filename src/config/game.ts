@@ -21,6 +21,31 @@ export const XP = {
 }
 
 /**
+ * Exam pre-season XP (26 Oct - 15 Nov). Light on purpose: nothing here should
+ * compete with study. Skipping a session for study costs nothing.
+ */
+export const PRESEASON_XP = {
+  session: 50,
+  /** A walk (or tennis) = a completed day. One per day counts. */
+  walk: 20,
+  examQuest: 15,
+  examBoss: 100,
+}
+
+/** Daily quests during exam season (shown with "Eat 5 times"). */
+export const EXAM_QUESTS = [
+  { id: 'sleep8', name: 'Slept 8+ hours', emoji: '😴' },
+  { id: 'study9', name: '9am study block done', emoji: '📚' },
+  { id: 'moved', name: 'Walk or mobility done', emoji: '🚶' },
+  { id: 'noCaffeine', name: 'No caffeine after 2pm', emoji: '☕' },
+] as const
+
+export type ExamQuestId = (typeof EXAM_QUESTS)[number]['id']
+
+/** Titles earned by achievements (pick them in More → Hero). */
+export const SPECIAL_TITLES: { id: string; name: string; achievement: string }[] = [{ id: 'examSlayer', name: 'Exam Slayer', achievement: 'examSlayer' }]
+
+/**
  * XP needed to go from level L to L+1. Tuned so a consistent (not perfect)
  * 12 weeks reaches Rim Rattler (level 22, ~38k XP) around the final boss.
  */
@@ -161,6 +186,8 @@ export const ACHIEVEMENTS = [
   { id: 'beachSurvivor', name: 'Beach Survivor', icon: '🏝️', desc: 'All 6 beach sessions' },
   { id: 'neverTwice', name: 'Never Missed Twice', icon: '🔁', desc: '4 weeks in a row without missing two planned days back to back' },
   { id: 'dunk', name: 'Dunk', icon: '🏀', desc: 'Throw one down! (unlock it yourself)' },
+  { id: 'examSlayer', name: 'Exam Slayer', icon: '🎓', desc: 'Defeat all five exam bosses. Unlocks the Exam Slayer title' },
+  { id: 'preseasonDone', name: 'Pre-season Done', icon: '📚', desc: 'Do 4 of the 6 exam pre-season sessions. Unlocks the graduation cap' },
 ] as const
 
 export type AchievementId = (typeof ACHIEVEMENTS)[number]['id']
@@ -247,10 +274,10 @@ export const DUNK = {
 export const TROPHY = { gold: 0.75, silver: 0.5 }
 
 /**
- * Gear you can't get by levelling: earned with streaks (best streak ever) or by
- * completing a loot collection set.
+ * Gear you can't get by levelling: earned with streaks (best streak ever), by
+ * completing a loot collection set, or with an achievement.
  */
-export const SPECIAL_GEAR: { id: string; name: string; slot: NonNullable<Unlockable['slot']>; streak?: number; set?: string }[] = [
+export const SPECIAL_GEAR: { id: string; name: string; slot: NonNullable<Unlockable['slot']>; streak?: number; set?: string; achievement?: string }[] = [
   { id: 'wristbands-streak', name: 'Streak sweatbands', slot: 'arms', streak: 2 },
   { id: 'flame-shoes', name: 'Flame high-tops', slot: 'shoes', streak: 4 },
   { id: 'headband-inferno', name: 'Inferno headband', slot: 'head', streak: 8 },
@@ -259,6 +286,7 @@ export const SPECIAL_GEAR: { id: string; name: string; slot: NonNullable<Unlocka
   { id: 'jersey-court', name: 'Court jersey', slot: 'shirt', set: 'court' },
   { id: 'aura-iron', name: 'Iron aura', slot: 'aura', set: 'iron' },
   { id: 'aura-legend', name: 'Legend aura', slot: 'aura', set: 'legends' },
+  { id: 'grad-cap', name: 'Graduation cap', slot: 'head', achievement: 'preseasonDone' },
 ]
 
 export type Rarity = 'common' | 'rare' | 'epic' | 'legendary'
