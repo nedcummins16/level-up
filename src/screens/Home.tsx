@@ -4,11 +4,12 @@ import { DailyQuests } from '../components/DailyQuests'
 import { DunkMeter, PhysiqueCard, TrophyCup } from '../components/Growth'
 import { HomeGym } from '../components/HomeGym'
 import { CollectionCard } from '../components/Loot'
+import { SkillTreeCard } from '../components/SkillTree'
 import { RaidCard } from '../components/RaidCard'
 import { TimePlace } from '../components/Appointments'
 import { appointmentFor, fmtTime } from '../lib/appointments'
 import { Badge, Bar, Btn, Check, NumField, Panel, Sheet } from '../components/ui'
-import { ACHIEVEMENTS, FREEZE, TITLES, xpToNext } from '../config/game'
+import { ACHIEVEMENTS, TITLES, xpToNext } from '../config/game'
 import { updateSettings } from '../db/db'
 import { PROGRAM } from '../config/program'
 import { avg7 } from '../lib/body'
@@ -69,7 +70,7 @@ export function Home() {
             {game.streak}W STREAK
           </span>
           <span className="cut-sm bg-bg px-2.5 py-1.5 text-accent-2">
-            {game.freezes}/{FREEZE.max} FREEZE{game.freezes === 1 ? '' : 'S'}
+            {game.freezes}/{game.freezeCap} FREEZE{game.freezes === 1 ? '' : 'S'}
           </span>
           <span className="cut-sm bg-bg px-2.5 py-1.5 text-muted">MOB {game.mobilityStreak}D</span>
         </div>
@@ -119,6 +120,7 @@ export function Home() {
       <PhysiqueCard />
       <DunkMeter />
       <CollectionCard />
+      <SkillTreeCard />
 
       {/* Next unlock */}
       {game.nextUnlock && (

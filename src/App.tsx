@@ -4,7 +4,7 @@ import { RestTimerBar } from './components/RestTimer'
 import { UpdatePrompt } from './components/UpdatePrompt'
 import { getSettings, updateSettings } from './db/db'
 import { fmtDate } from './lib/dates'
-import { setSoundEnabled, unlockAudio } from './lib/sound'
+import { setSoundEnabled, setSoundPack, unlockAudio } from './lib/sound'
 import { AppProvider, useApp, type Tab } from './state/app'
 import { useAppData, useToday } from './state/data'
 import { FxProvider } from './state/fx'
@@ -55,6 +55,7 @@ export default function App() {
   useEffect(() => {
     if (!data) return
     setSoundEnabled(data.settings.soundOn)
+    setSoundPack(data.settings.soundPack)
     document.documentElement.dataset.theme = data.settings.themeId
   }, [data])
 

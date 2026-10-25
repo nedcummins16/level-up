@@ -45,6 +45,9 @@ export interface Settings {
   /** Loot drops / special gear already revealed (null = not set up yet). */
   seenDrops: string[] | null
   seenGear: string[] | null
+  /** Skill tree: unlocked skill ids. */
+  skills: string[]
+  soundPack: string
 }
 
 /** When and where you'll train on a date (implementation intention). */

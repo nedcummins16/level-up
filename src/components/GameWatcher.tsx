@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react'
-import { COSMETICS, DUNK, LOOT, SPECIAL_GEAR, UNLOCKABLES, XP, titleFor } from '../config/game'
+import { CELEBRATION_TIERS, COSMETICS, DUNK, LOOT, SPECIAL_GEAR, UNLOCKABLES, XP, titleFor } from '../config/game'
 import { RARITY } from './Loot'
 import { updateSettings } from '../db/db'
 import { useApp } from '../state/app'
-import { useFx } from '../state/fx'
+import { setCelebrationTier, useFx } from '../state/fx'
 
 /** Fires level-up / achievement celebrations once, and auto-equips new cosmetics. */
 export function GameWatcher() {
@@ -18,6 +18,12 @@ export function GameWatcher() {
     gear?: Set<string>
   } | null>(null)
   const s = data.settings
+
+  // PR celebration style follows your level.
+  useEffect(() => {
+    const tier = [...CELEBRATION_TIERS].reverse().find((t) => t.level <= game.level)
+    setCelebrationTier(tier?.id ?? 'confetti')
+  }, [game.level])
 
   useEffect(() => {
     if (!handled.current) handled.current = { level: s.seenLevel, ach: new Set(s.seenAchievements) }

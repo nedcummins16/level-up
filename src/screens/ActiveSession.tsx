@@ -7,8 +7,9 @@ import type { LoggedExercise, LoggedSet, WorkoutSession } from '../db/types'
 import { fmtShort } from '../lib/dates'
 import { dayMods } from '../lib/life'
 import { BODYWEIGHT_LIKE } from '../lib/progression'
-import { bestFor, isPR, prText } from '../lib/records'
-import { defaultReps, exerciseLogs, exInfo, planExercise, repsLabel, restLabel, toLogged, warmupSteps } from '../lib/session'
+import { bestFor, isPR, prText, type Best } from '../lib/records'
+import { e1rmTrend, platesPerSide, prTarget } from '../lib/skills'
+import { defaultReps, exerciseLogs, exInfo, planExercise, rampUpText, repsLabel, restLabel, toLogged, warmupSteps } from '../lib/session'
 import { sfx, unlockAudio } from '../lib/sound'
 import { useWakeLock } from '../lib/wakeLock'
 import { earnsStrengthXP } from '../lib/xp'
@@ -146,6 +147,8 @@ export function ActiveSession({ session }: { session: WorkoutSession }) {
   const firstExDone = s.exercises[0]?.sets.every((x) => x.done)
   const elapsed = Math.floor((Date.now() - s.startedAt) / 60000)
 
+  const skills = new Set(app.game.skills)
+  const doneSessions = app.data.sessions.filter((x) => x.status === 'done')
   const appt = app.data.appointments.find((a) => a.date === s.date)
   const onTime = !!appt && earns && (() => {
     const [h, m] = appt.time.split(':').map(Number)
@@ -236,6 +239,9 @@ export function ActiveSession({ session }: { session: WorkoutSession }) {
             <ExerciseCard
               index={ei}
               total={s.exercises.length}
+              skills={skills}
+              best={bestFor(doneSessions, e.ex, e.equipment, s.id)}
+              trend={skills.has('trend') ? e1rmTrend(app.data.sessions, e.ex, s.date) : null}
               e={e}
               last={exerciseLogs(app.data.sessions, e.ex, s.date, s.id).pop() ?? null}
               onSet={(si, patch, prop) => updateSet(ei, si, patch, prop)}
@@ -292,6 +298,9 @@ export function ActiveSession({ session }: { session: WorkoutSession }) {
 function ExerciseCard({
   index,
   total,
+  skills,
+  best,
+  trend,
   e,
   last,
   onSet,
@@ -302,6 +311,9 @@ function ExerciseCard({
 }: {
   index: number
   total: number
+  skills: Set<string>
+  best: Best
+  trend: number | null
   e: LoggedExercise
   last: { session: WorkoutSession; ex: LoggedExercise } | null
   onSet: (si: number, patch: Partial<LoggedSet>, propagate?: boolean) => void
@@ -364,6 +376,7 @@ function ExerciseCard({
         </div>
       )}
       {info.cue && <div className="text-xs text-muted mt-1">Tip: {info.cue}</div>}
+      <Perks e={e} skills={skills} best={best} trend={trend} />
 
       <div className="mt-3 space-y-1.5">
         <div className="grid grid-cols-[24px_1fr_1fr_44px_56px] gap-1.5 font-pixel text-[11px] tracking-[0.15em] text-muted">
@@ -378,7 +391,8 @@ function ExerciseCard({
           const placeholder = defaultReps(e, si, last?.ex ?? null)
           const isCurrent = si === current
           return (
-            <div key={si} className="grid grid-cols-[24px_1fr_1fr_44px_56px] gap-1.5 items-center">
+            <div key={si}>
+            <div className="grid grid-cols-[24px_1fr_1fr_44px_56px] gap-1.5 items-center">
               <span className={`font-pixel text-[15px] ${isCurrent ? 'text-accent' : 'text-muted'}`}>{si + 1}</span>
               {weighted ? (
                 <input
@@ -429,6 +443,8 @@ function ExerciseCard({
                 {set.done ? '✓' : 'GO'}
               </button>
             </div>
+            {skills.has('ghost') && <GhostLine set={set} ghost={last?.ex.sets[si]} equipment={e.equipment} />}
+            </div>
           )
         })}
         {e.rirTargets && (
@@ -446,6 +462,48 @@ function ExerciseCard({
         </div>
       </div>
     </Panel>
+  )
+}
+
+function Perks({ e, skills, best, trend }: { e: LoggedExercise; skills: Set<string>; best: Best; trend: number | null }) {
+  const barbell = e.equipment === 'barbell-lower' || e.equipment === 'barbell-upper'
+  const weightNow = e.sets.find((x) => !x.done)?.weight ?? e.suggested
+  const lines: { label: string; text: string }[] = []
+  if (skills.has('plates') && barbell && weightNow) {
+    const p = platesPerSide(weightNow)
+    if (p) lines.push({ label: 'PLATES', text: p.perSide.length ? `${p.perSide.join(' + ')} per side (20 kg bar)${p.leftover ? ` · +${p.leftover} kg short` : ''}` : 'Empty 20 kg bar' })
+  }
+  if (skills.has('warmups') && barbell && !e.rampUp && weightNow) lines.push({ label: 'RAMP', text: rampUpText({ name: '', equipment: e.equipment, weight: weightNow }).replace(/^Ramp-up : /, '') })
+  if (skills.has('prPredict')) {
+    const t = prTarget(best, e.equipment, weightNow)
+    if (t) lines.push({ label: 'PR', text: t })
+  }
+  if (skills.has('trend') && trend !== null) lines.push({ label: 'TREND', text: `${trend > 0 ? '+' : ''}${trend} kg/week estimated 1RM (last 4 weeks)` })
+  if (!lines.length) return null
+  return (
+    <div className="mt-2 bg-bg-2 px-2 py-1.5 space-y-0.5">
+      {lines.map((l) => (
+        <div key={l.label} className="text-sm flex gap-2">
+          <span className="font-pixel text-[11px] tracking-[0.12em] text-accent-2 w-12 shrink-0 pt-0.5">{l.label}</span>
+          <span className="text-muted">{l.text}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/** Ghost race: last session's set under this one. */
+function GhostLine({ set, ghost, equipment }: { set: LoggedSet; ghost?: LoggedSet; equipment: LoggedExercise['equipment'] }) {
+  if (!ghost?.done || !ghost.reps) return null
+  const load = (w: number | null) => (equipment === 'assisted' ? -(w ?? 0) : (w ?? 0))
+  const beat = set.done && set.reps !== null && (load(set.weight) > load(ghost.weight) || (load(set.weight) === load(ghost.weight) && set.reps > ghost.reps))
+  const tie = set.done && set.reps === ghost.reps && load(set.weight) === load(ghost.weight)
+  return (
+    <div className="text-xs pl-[30px] pt-0.5 text-muted">
+      ghost {ghost.weight ? `${ghost.weight}×${ghost.reps}` : `${ghost.reps}`}
+      {beat && <span className="text-good"> · ▲ beat your ghost</span>}
+      {tie && <span> · tied</span>}
+    </div>
   )
 }
 

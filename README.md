@@ -103,3 +103,7 @@ To change the icon, edit `public/icon.svg` and run `npm run generate-assets` (th
 | Comeback quest, light-week coach | `src/lib/game.ts`, `src/lib/coach.ts` |
 | Weekly share card | `src/lib/shareCard.ts` |
 | Food quest + bulk menu | `FOOD` in `src/config/game.ts` |
+| Hero body from your real numbers, dunk meter, boss trophies, Hall of PRs | `src/lib/growth.ts`, `src/lib/sprite.ts` |
+| Loot drops, collection sets, streak gear, on-time bonus | `src/lib/loot.ts` (tune odds in `LOOT` in `src/config/game.ts`) |
+| Skill tree, plate calculator, PR predictor | `src/lib/skills.ts` (`SKILLS` in `src/config/game.ts`) |
+| Home gym pixel art | `src/components/HomeGym.tsx` |

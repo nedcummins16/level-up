@@ -32,6 +32,7 @@ import { allTestDays, getPhase, weekNumber } from './plan'
 import { epley } from './progression'
 import { allPRs, type PREvent } from './records'
 import { computeLoot, onTimeSessions, specialGearUnlocked, type LootState } from './loot'
+import { activeSkills, maxFreezes } from './skills'
 import { bestJumpReach, bossTrophies, computeDunk, computePhysique, type BossTrophy, type DunkState, type Physique } from './growth'
 import { isStrengthSlot, type WeekPlan } from './schedule'
 import { earnsStrengthXP } from './xp'
@@ -116,6 +117,9 @@ export interface GameState {
   /** Every gear id you can wear (levels, streaks, sets). */
   gearUnlocked: string[]
   gymItems: string[]
+  /** Active skill-tree perks. */
+  skills: string[]
+  freezeCap: number
   dunk: DunkState
   trophies: BossTrophy[]
 }
@@ -301,6 +305,7 @@ export function computeGame(input: GameInput): GameState {
   }
 
   // --- Weeks: streak, freezes, recovery quests, weekly quests, raids
+  const freezeCap = maxFreezes(new Set(settings.skills ?? []))
   const firstWeek = mondayOf(PROGRAM.start)
   const lastWeek = mondayOf(today)
   const weeks: WeekResult[] = []
@@ -388,7 +393,7 @@ export function computeGame(input: GameInput): GameState {
       if (complete) {
         streak++
         completeWeeks++
-        if (completeWeeks % FREEZE.everyWeeks === 0 && freezes < FREEZE.max) {
+        if (completeWeeks % FREEZE.everyWeeks === 0 && freezes < freezeCap) {
           freezes++
           freezeEarned = true
         }
@@ -466,6 +471,8 @@ export function computeGame(input: GameInput): GameState {
     loot,
     gearUnlocked: [...COSMETICS.filter((c) => c.level <= lv.level).map((c) => c.id), ...specialGearUnlocked(best, loot.setsComplete)],
     gymItems: HOME_GYM.filter((g) => g.level <= lv.level).map((g) => g.id),
+    skills: [...activeSkills(settings.skills ?? [], lv.level)],
+    freezeCap,
     dunk: computeDunk(tests, daily),
     trophies: bossTrophies(tests),
   }

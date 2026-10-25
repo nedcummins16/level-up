@@ -5,7 +5,7 @@ import { Character } from './Character'
 
 /** Sticky rest timer (above the tab bar) with your hero resting, + full-screen flash when rest is over. */
 export function RestTimerBar() {
-  const { timer, remaining, add, stop, flashing, dismissFlash } = useTimer()
+  const { timer, remaining, add, stop, start, flashing, dismissFlash } = useTimer()
   const { data, game } = useApp()
   if (!timer) return null
   const done = remaining <= 0
@@ -24,6 +24,15 @@ export function RestTimerBar() {
             <div className="h-1 bg-panel-2 mt-1">
               <div className="h-full bg-accent transition-[width] duration-200" style={{ width: `${pct}%` }} />
             </div>
+            {game.skills.includes('restPresets') && !done && (
+              <div className="flex gap-1 mt-1.5">
+                {[60, 90, 120, 180].map((sec) => (
+                  <button key={sec} onClick={() => start(sec, timer.label)} className="cut-sm flex-1 h-8 bg-panel-2 font-pixel text-[11px]" aria-label={`Rest ${sec} seconds`}>
+                    {sec >= 120 ? `${sec / 60}m` : `${sec}s`}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           {!done && (
             <>

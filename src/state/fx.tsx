@@ -28,6 +28,32 @@ interface Floater {
   x: number
 }
 
+// PR celebration style, set from your level by the GameWatcher ('confetti' | 'fireworks' | 'dunk').
+let celebrationTier = 'confetti'
+export function setCelebrationTier(id: string) {
+  celebrationTier = id
+}
+
+export function fireFireworks() {
+  const colors = ['#ff6a2b', '#3ad1ff', '#ffd23f', '#ffffff', '#ff3e9e']
+  for (let i = 0; i < 6; i++) {
+    setTimeout(() => {
+      void confetti({
+        particleCount: 45,
+        spread: 360,
+        startVelocity: 28,
+        gravity: 0.7,
+        ticks: 110,
+        scalar: 1.1,
+        shapes: ['star'],
+        colors,
+        origin: { x: 0.15 + Math.random() * 0.7, y: 0.15 + Math.random() * 0.35 },
+        disableForReducedMotion: true,
+      })
+    }, i * 220)
+  }
+}
+
 export function fireConfetti(big = false) {
   const colors = ['#7cff4f', '#ff4fd8', '#ffd23f', '#34e0ff', '#ffffff']
   const base = { shapes: ['square' as const], colors, scalar: 1.1, ticks: 160, disableForReducedMotion: true }
@@ -55,7 +81,8 @@ export function FxProvider({ children }: { children: ReactNode }) {
     else if (c.kind === 'level') sfx.levelUp()
     else if (c.kind === 'chest' || c.kind === 'loot') sfx.chest()
     else sfx.achievement()
-    fireConfetti(c.kind !== 'session')
+    if (c.kind === 'pr' && celebrationTier !== 'confetti') fireFireworks()
+    else fireConfetti(c.kind !== 'session')
   }, [])
 
   const api = useMemo<FxApi>(() => ({ floatXP, confetti: fireConfetti, celebrate }), [floatXP, celebrate])
@@ -89,12 +116,32 @@ function CelebrationOverlay({ c, onDone }: { c: Celebration; onDone: () => void 
           <div className="font-pixel text-[24px] text-xp mb-4 anim-blink" style={c.colour ? { color: c.colour } : undefined}>
             {heading}
           </div>
-          {c.icon && <div className="text-6xl mb-3 anim-bob">{c.icon}</div>}
+          {c.kind === 'pr' && celebrationTier === 'dunk' ? <DunkAnimation /> : c.icon && <div className="text-6xl mb-3 anim-bob">{c.icon}</div>}
           <div className="font-pixel text-[18px] text-ink mb-2 leading-relaxed">{c.title}</div>
           {c.sub && <div className="text-muted mb-3">{c.sub}</div>}
           {c.xp ? <div className="font-pixel text-[19px] text-accent mb-4">+{c.xp} XP</div> : null}
           <div className="font-pixel text-[14px] text-muted">TAP TO CONTINUE</div>
         </div>
+      </div>
+    </div>
+  )
+}
+
+/** Ball arcs into a hoop and the rim shakes: the top-tier PR celebration. */
+function DunkAnimation() {
+  return (
+    <div className="relative mx-auto mb-3" style={{ width: 200, height: 120 }} aria-hidden="true">
+      <svg viewBox="0 0 200 120" width="200" height="120" className="absolute inset-0 pixelated">
+        <rect x="150" y="10" width="44" height="34" fill="#e8edf2" />
+        <rect x="160" y="20" width="24" height="16" fill="none" stroke="#ff6a2b" strokeWidth="2" />
+        <g className="anim-rim">
+          <rect x="132" y="44" width="40" height="4" fill="#ff6a2b" />
+          <path d="M134 48 L140 72 L164 72 L170 48" fill="none" stroke="#c9d1d9" strokeWidth="2" />
+        </g>
+      </svg>
+      <div className="anim-dunk absolute" style={{ left: 0, top: 80, width: 22, height: 22, borderRadius: 11, background: '#ff8a1f', boxShadow: 'inset -4px -4px 0 rgba(0,0,0,0.25)' }} />
+      <div className="anim-slam absolute font-pixel text-[30px] text-accent" style={{ left: 10, top: 6 }}>
+        SLAM!
       </div>
     </div>
   )

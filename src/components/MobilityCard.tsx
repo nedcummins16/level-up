@@ -3,11 +3,14 @@ import { MOBILITY } from '../config/program'
 import type { ISODate } from '../lib/dates'
 import { patchDaily } from '../state/actions'
 import { useApp } from '../state/app'
+import { useTimer } from '../state/timer'
 import { useFx } from '../state/fx'
 import { Check, Panel } from './ui'
 
 export function MobilityCard({ date, gymDay }: { date: ISODate; gymDay: boolean }) {
-  const { data } = useApp()
+  const { data, game } = useApp()
+  const timer = useTimer()
+  const stretchTimer = game.skills.includes('stretchTimer')
   const fx = useFx()
   const log = data.daily.find((d) => d.date === date)
   const items = MOBILITY.filter((m) => !m.gymDaysOnly || gymDay)
@@ -36,11 +39,29 @@ export function MobilityCard({ date, gymDay }: { date: ISODate; gymDay: boolean 
           </button>
         )}
       </div>
-      {items.map((m) => (
-        <Check key={m.id} on={done.has(m.id)} onChange={(on) => toggle(m.id, on)}>
-          {m.name}
-        </Check>
-      ))}
+      {items.map((m) => {
+        const secs = timedSeconds(m.name)
+        return (
+          <div key={m.id} className="flex items-center gap-2">
+            <div className="flex-1">
+              <Check on={done.has(m.id)} onChange={(on) => toggle(m.id, on)}>
+                {m.name}
+              </Check>
+            </div>
+            {stretchTimer && secs && !done.has(m.id) && (
+              <button className="cut-sm h-10 px-3 bg-panel-2 font-pixel text-[12px]" onClick={() => timer.start(secs, m.name)} aria-label={`Start ${secs} second timer for ${m.name}`}>
+                ▶ {secs}s
+              </button>
+            )}
+          </div>
+        )
+      })}
     </Panel>
   )
+}
+
+/** "Couch stretch 45s / side" → 45 */
+function timedSeconds(name: string): number | null {
+  const m = name.match(/(\d+)(?:-(\d+))?s\b/)
+  return m ? Number(m[2] ?? m[1]) : null
 }

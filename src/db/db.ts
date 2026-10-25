@@ -73,6 +73,8 @@ export function defaultSettings(): Settings {
     seenDunk: [],
     seenDrops: null,
     seenGear: null,
+    skills: [],
+    soundPack: 'arcade',
   }
 }
 

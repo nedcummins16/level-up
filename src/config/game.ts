@@ -59,7 +59,7 @@ export function titleFor(level: number) {
 
 export interface Unlockable {
   level: number
-  kind: 'theme' | 'cosmetic' | 'gym'
+  kind: 'theme' | 'cosmetic' | 'gym' | 'celebration' | 'sound'
   id: string
   name: string
   slot?: 'head' | 'arms' | 'shoes' | 'shirt' | 'hand' | 'back' | 'aura'
@@ -303,3 +303,46 @@ export const LOOT = {
 
 /** Start a gym session within this many minutes of the time you planned = on-time bonus. */
 export const ON_TIME = { windowMin: 30, xp: 25 }
+
+/**
+ * Skill tree: 1 skill point per level (from level 2). Skills are NEW tools only.
+ * Core features (Life Happens, progression, warm-up, last-time numbers) are never locked.
+ */
+export const SKILLS: { id: string; name: string; desc: string; cost: number; branch: 'coach' | 'rival' | 'resilience'; requires: string[] }[] = [
+  { id: 'plates', name: 'Plate calculator', desc: 'Shows which plates go on each side of the bar.', cost: 1, branch: 'coach', requires: [] },
+  { id: 'warmups', name: 'Ramp-up every lift', desc: 'Ramp-up sets for every barbell lift, not just the first.', cost: 1, branch: 'coach', requires: ['plates'] },
+  { id: 'restPresets', name: 'Rest presets', desc: 'One-tap 60 / 90 / 120 / 180 s buttons on the rest timer.', cost: 1, branch: 'coach', requires: ['warmups'] },
+  { id: 'ghost', name: 'Ghost race', desc: "Last session's numbers on every set. Beat your ghost.", cost: 1, branch: 'rival', requires: [] },
+  { id: 'prPredict', name: 'PR predictor', desc: 'Shows exactly what counts as a PR on each exercise.', cost: 2, branch: 'rival', requires: ['ghost'] },
+  { id: 'trend', name: 'Strength trend', desc: 'Your estimated 1RM trend (kg per week) on each lift.', cost: 2, branch: 'rival', requires: ['prPredict'] },
+  { id: 'stretchTimer', name: 'Stretch timer', desc: 'Tap-to-start 45 s timers on timed mobility stretches.', cost: 1, branch: 'resilience', requires: [] },
+  { id: 'freeze3', name: 'Deep freezer', desc: 'Store up to 3 streak freezes instead of 2.', cost: 3, branch: 'resilience', requires: ['stretchTimer'] },
+]
+
+export const SKILL_BRANCHES = [
+  { id: 'coach', name: 'Coach', desc: 'Smarter loading' },
+  { id: 'rival', name: 'Rival', desc: 'Beat your past self' },
+  { id: 'resilience', name: 'Resilience', desc: 'Stay in the game' },
+] as const
+
+/** PR celebrations level up with you. */
+export const CELEBRATION_TIERS = [
+  { level: 1, id: 'confetti', name: 'Confetti' },
+  { level: 8, id: 'fireworks', name: 'Fireworks' },
+  { level: 16, id: 'dunk', name: 'Slam dunk' },
+]
+
+/** Sound packs for sets, PRs and level-ups (the rest-timer alarm is always the loud one). */
+export const SOUND_PACKS = [
+  { id: 'arcade', name: 'Arcade', level: 1 },
+  { id: 'court', name: 'Court', level: 5 },
+  { id: 'synth', name: 'Synth', level: 10 },
+  { id: 'boss', name: '8-bit Boss', level: 15 },
+]
+
+// Celebration styles + sound packs also show up as level unlocks.
+UNLOCKABLES.push(
+  ...CELEBRATION_TIERS.filter((c) => c.level > 1).map((c) => ({ level: c.level, kind: 'celebration' as const, id: c.id, name: `${c.name} PR celebration` })),
+  ...SOUND_PACKS.filter((p) => p.level > 1).map((p) => ({ level: p.level, kind: 'sound' as const, id: p.id, name: `${p.name} sound pack` })),
+)
+UNLOCKABLES.sort((a, b) => a.level - b.level)

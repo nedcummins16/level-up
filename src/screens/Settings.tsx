@@ -3,7 +3,9 @@ import { AddToCalendar } from '../components/Appointments'
 import { Character } from '../components/Character'
 import { FeelCardView } from '../components/FeelIt'
 import { Btn, H, NumField, Panel, Sheet, Toggle } from '../components/ui'
-import { COSMETICS, LOOT, SPECIAL_GEAR, THEMES, TITLES } from '../config/game'
+import { CELEBRATION_TIERS, COSMETICS, LOOT, SKILLS, SOUND_PACKS, SPECIAL_GEAR, THEMES, TITLES } from '../config/game'
+import { SkillTree } from '../components/SkillTree'
+import { sfx } from '../lib/sound'
 import { EXERCISES, PROGRAM, SESSIONS } from '../config/program'
 import { updateSettings } from '../db/db'
 import { exportBackup, parseBackup, resetAll, restoreBackup } from '../lib/backup'
@@ -13,7 +15,7 @@ import { useApp } from '../state/app'
 import { InstallGuide } from './Install'
 
 export function Settings() {
-  const { data } = useApp()
+  const { data, game } = useApp()
   const s = data.settings
   const [install, setInstall] = useState(false)
   return (
@@ -28,8 +30,31 @@ export function Settings() {
       <ExerciseGuide />
       <MachineSteps />
       <Panel>
+        <H>Skill tree</H>
+        <SkillTreeEntry />
+      </Panel>
+      <Panel>
         <H>Sound</H>
         <Toggle on={s.soundOn} onChange={(v) => void updateSettings({ soundOn: v })} label="Game sounds (the rest timer always beeps)" />
+        <div className="text-sm text-muted mt-2 mb-1">Sound pack</div>
+        <div className="grid grid-cols-2 gap-2">
+          {SOUND_PACKS.map((p) => {
+            const locked = p.level > game.level
+            return (
+              <button
+                key={p.id}
+                disabled={locked}
+                onClick={() => {
+                  sfx.preview(p.id)
+                  void updateSettings({ soundPack: p.id })
+                }}
+                className={`cut-sm h-12 font-pixel text-[12px] tracking-[0.1em] ${s.soundPack === p.id ? 'bg-accent text-accent-ink' : 'bg-panel-2'} ${locked ? 'opacity-40' : ''}`}
+              >
+                {locked ? `🔒 LV${p.level}` : p.name.toUpperCase()}
+              </button>
+            )
+          })}
+        </div>
         <p className="text-xs text-muted">On iPhone the silent switch mutes sounds. The rest timer also flashes the screen.</p>
       </Panel>
       <Panel>
@@ -333,6 +358,26 @@ function ScheduleSettings() {
 function BlurInput({ value, onSave }: { value: string; onSave: (v: string) => void }) {
   const [v, setV] = useState(value)
   return <input className="px-input !min-h-[44px]" value={v} onChange={(e) => setV(e.target.value)} onBlur={() => v !== value && onSave(v)} />
+}
+
+function SkillTreeEntry() {
+  const [open, setOpen] = useState(false)
+  const { game } = useApp()
+  const tier = [...CELEBRATION_TIERS].reverse().find((t) => t.level <= game.level)
+  return (
+    <>
+      <p className="text-sm text-muted mb-2">
+        {game.skills.length}/{SKILLS.length} skills unlocked. PR celebration: <b className="text-ink">{tier?.name}</b>
+        {CELEBRATION_TIERS.find((t) => t.level > game.level) ? ` (next at LV ${CELEBRATION_TIERS.find((t) => t.level > game.level)!.level})` : ''}.
+      </p>
+      <Btn variant="ghost" className="w-full" onClick={() => setOpen(true)}>
+        Open skill tree
+      </Btn>
+      <Sheet open={open} onClose={() => setOpen(false)} title="Skill tree">
+        <SkillTree />
+      </Sheet>
+    </>
+  )
 }
 
 function ExerciseGuide() {
