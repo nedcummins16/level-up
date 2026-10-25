@@ -138,17 +138,17 @@ function MainQuests() {
   const restDay = todayPlan.items.every((i) => i.kind === 'rest')
   const meals = new Set(log?.meals ?? [])
 
-  const set = (key: 'protein' | 'steps' | 'smoothie', val: boolean) => {
+  const set = (key: 'protein' | 'steps' | 'smoothie' | 'lunch', val: boolean) => {
     const cur = log?.[key] ?? null
     const next = cur === val ? null : val
     if (next === true) {
       sfx.tap()
-      fx.floatXP(XP.dailyQuest)
+      fx.floatXP(key === 'lunch' ? XP.lunchQuest : XP.dailyQuest)
     }
     void patchDaily(today, { [key]: next })
   }
 
-  const doneCount = [log?.mobilityDone, log?.protein, log?.steps, log?.smoothie, meals.size >= FOOD.slots.length].filter(Boolean).length
+  const doneCount = [log?.mobilityDone, log?.protein, log?.steps, log?.smoothie, meals.size >= FOOD.slots.length, log?.lunch].filter(Boolean).length
 
   return (
     <Panel>

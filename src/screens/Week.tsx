@@ -137,10 +137,11 @@ export function Week() {
                 <span className={q.done ? 'text-good' : ''}>
                   {q.done ? '✅' : '⬜'} {q.name}
                 </span>
-                <span className="text-sm text-muted">{q.progress}</span>
+                <span className="text-sm text-muted whitespace-nowrap">
+                  {q.progress} · +{q.xp}
+                </span>
               </div>
             ))}
-            <div className="text-xs text-muted mt-1">+{XP.weeklyQuest} XP each</div>
           </Panel>
           <RaidCard week={wr} />
         </>

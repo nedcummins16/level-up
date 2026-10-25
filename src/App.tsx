@@ -16,11 +16,13 @@ import { Today } from './screens/Today'
 import { Week } from './screens/Week'
 
 const Progress = lazy(() => import('./screens/Progress').then((m) => ({ default: m.Progress })))
+const Kitchen = lazy(() => import('./screens/Kitchen').then((m) => ({ default: m.Kitchen })))
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'home', label: 'Hero' },
   { id: 'today', label: 'Today' },
   { id: 'week', label: 'Week' },
+  { id: 'kitchen', label: 'Kitchen' },
   { id: 'progress', label: 'Stats' },
   { id: 'settings', label: 'More' },
 ]
@@ -95,9 +97,9 @@ function Shell() {
         {tab === 'home' && <Home />}
         {tab === 'today' && <Today />}
         {tab === 'week' && <Week />}
-        {tab === 'progress' && (
+        {(tab === 'progress' || tab === 'kitchen') && (
           <Suspense fallback={<div className="p-6 font-pixel text-accent anim-blink">LOADING…</div>}>
-            <Progress />
+            {tab === 'progress' ? <Progress /> : <Kitchen />}
           </Suspense>
         )}
         {tab === 'settings' && <Settings />}
@@ -105,13 +107,13 @@ function Shell() {
       <RestTimerBar />
       <GameWatcher />
       <nav className="fixed bottom-0 left-0 right-0 z-40 bg-bg border-t border-edge pb-safe">
-        <div className="max-w-xl mx-auto grid grid-cols-5">
+        <div className="max-w-xl mx-auto grid grid-cols-6">
           {TABS.map((t) => (
             <button
               key={t.id}
               onClick={() => go(t.id)}
               aria-current={tab === t.id ? 'page' : undefined}
-              className={`relative h-[64px] flex items-center justify-center font-pixel text-[12px] tracking-[0.16em] uppercase border-t-[3px] ${tab === t.id ? 'text-ink border-accent' : 'text-muted border-transparent'}`}
+              className={`relative h-[64px] flex items-center justify-center font-pixel text-[11px] tracking-[0.06em] uppercase border-t-[3px] ${tab === t.id ? 'text-ink border-accent' : 'text-muted border-transparent'}`}
             >
               {t.label}
               {t.id === 'today' && active && <span className="absolute top-3 right-3 w-2 h-2 bg-accent anim-blink" aria-label="Workout in progress" />}

@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useState } from 'react'
 import { db, defaultSettings } from '../db/db'
-import type { Appointment, CheckIn, DailyLog, LifeEvent, Measurement, Settings, TestResult, WorkoutSession } from '../db/types'
+import type { Appointment, CheckIn, CustomRecipe, DailyLog, LifeEvent, MealPlan, Measurement, Settings, TestResult, WorkoutSession } from '../db/types'
 import { isoInMelbourne, setTodayOverride, type ISODate } from '../lib/dates'
 
 export interface AppData {
@@ -13,12 +13,14 @@ export interface AppData {
   tests: TestResult[]
   measurements: Measurement[]
   appointments: Appointment[]
+  mealPlans: MealPlan[]
+  recipes: CustomRecipe[]
 }
 
 /** Everything except photo blobs, live-updating whenever the database changes. */
 export function useAppData(): AppData | undefined {
   return useLiveQuery(async () => {
-    const [settings, sessions, life, daily, checkins, tests, measurements, appointments] = await Promise.all([
+    const [settings, sessions, life, daily, checkins, tests, measurements, appointments, mealPlans, recipes] = await Promise.all([
       db.settings.get('settings'),
       db.sessions.orderBy('date').toArray(),
       db.life.toArray(),
@@ -27,6 +29,8 @@ export function useAppData(): AppData | undefined {
       db.tests.toArray(),
       db.measurements.orderBy('date').toArray(),
       db.appointments.toArray(),
+      db.mealPlans.toArray(),
+      db.recipes.toArray(),
     ])
     // Never write inside a live query (it's read-only). Missing settings → defaults;
     // App creates the settings row on first launch.
@@ -39,6 +43,8 @@ export function useAppData(): AppData | undefined {
       tests,
       measurements,
       appointments,
+      mealPlans,
+      recipes,
     }
   }, [])
 }

@@ -58,6 +58,35 @@ export interface Settings {
   specialTitle: string | null
   /** Special titles already auto-equipped once. */
   seenTitles: string[]
+  /** Kitchen: favourite recipe ids. */
+  kitchenFavs: string[]
+}
+
+/** Kitchen: the lunches picked for a week, shopping ticks and the prep checklist. */
+export interface MealPlan {
+  /** Monday of the week you'll eat these lunches. */
+  weekStart: ISODate
+  /** Recipe ids (1-2). */
+  lunches: string[]
+  /** Ticked shopping-list item keys. */
+  shopped: string[]
+  /** Ticked prep-checklist step ids. */
+  prep: string[]
+  /** When the whole prep checklist was ticked off (Meal Prep Sunday). */
+  prepDoneAt: ISODate | null
+}
+
+/** Kitchen: a recipe you added yourself (written for 5 portions). */
+export interface CustomRecipe {
+  id?: number
+  name: string
+  kcal: number | null
+  protein: number | null
+  freezes: boolean
+  /** One per line, e.g. "500 g chicken thighs". */
+  ingredients: string[]
+  steps: string[]
+  createdAt: number
 }
 
 /** When and where you'll train on a date (implementation intention). */
@@ -148,6 +177,8 @@ export interface DailyLog {
   mobility: string[]
   mobilityDone: boolean
   protein?: boolean | null
+  /** Kitchen: prepped lunch eaten. */
+  lunch?: boolean | null
   steps?: boolean | null
   smoothie?: boolean | null
   /** Meals/snacks ticked off today (ids from FOOD.slots). */

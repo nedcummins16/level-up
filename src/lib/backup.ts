@@ -1,6 +1,7 @@
 // Backup = one JSON file with every table. Photos are embedded as base64 JPEGs.
 // Export uses the Web Share API so on iPhone you can "Save to Files" / iCloud Drive.
 
+import type { Table } from 'dexie'
 import { db, updateSettings } from '../db/db'
 import type { Photo } from '../db/types'
 import { isoInMelbourne } from './dates'
@@ -30,28 +31,24 @@ async function dataURLToBlob(url: string): Promise<Blob> {
   return res.blob()
 }
 
+/** Every table except photos (handled separately because of the image blobs). */
+const TABLES = ['settings', 'sessions', 'life', 'daily', 'checkins', 'tests', 'measurements', 'appointments', 'mealPlans', 'recipes'] as const
+
+const allTables = () => [...TABLES.map((t) => db[t]), db.photos]
+
 export async function buildBackup(): Promise<BackupFile> {
-  const [settings, sessions, life, daily, checkins, tests, measurements, photos, appointments] = await Promise.all([
-    db.settings.toArray(),
-    db.sessions.toArray(),
-    db.life.toArray(),
-    db.daily.toArray(),
-    db.checkins.toArray(),
-    db.tests.toArray(),
-    db.measurements.toArray(),
-    db.photos.toArray(),
-    db.appointments.toArray(),
-  ])
+  const rows = await Promise.all(TABLES.map((t) => db[t].toArray() as Promise<unknown[]>))
+  const photos = await db.photos.toArray()
   const photoRows = await Promise.all(photos.map(async (p) => ({ ...p, blob: await blobToDataURL(p.blob) })))
+  const tables: Record<string, unknown[]> = Object.fromEntries(TABLES.map((t, i) => [t, rows[i]]))
   return {
     app: APP_ID,
     version: BACKUP_VERSION,
     exportedAt: new Date().toISOString(),
     schema: db.verno,
-    tables: { settings, sessions, life, daily, checkins, tests, measurements, photos: photoRows, appointments },
+    tables: { ...tables, photos: photoRows },
   }
 }
-
 /** Export: share sheet on iPhone, download elsewhere. Returns how it was saved. */
 export async function exportBackup(): Promise<'shared' | 'downloaded' | 'cancelled'> {
   const data = await buildBackup()
@@ -86,29 +83,22 @@ export function parseBackup(text: string): BackupFile {
   return data
 }
 
-/** Replace everything on this device with the backup. */
+/** Replace everything on this device with the backup. Older backups without the Kitchen tables still restore. */
 export async function restoreBackup(data: BackupFile) {
   const t = data.tables
   const photos = await Promise.all(
     ((t.photos ?? []) as (Omit<Photo, 'blob'> & { blob: string })[]).map(async (p) => ({ ...p, blob: await dataURLToBlob(p.blob) })),
   )
-  await db.transaction('rw', [db.settings, db.sessions, db.life, db.daily, db.checkins, db.tests, db.measurements, db.photos, db.appointments], async () => {
-    await Promise.all([db.settings.clear(), db.sessions.clear(), db.life.clear(), db.daily.clear(), db.checkins.clear(), db.tests.clear(), db.measurements.clear(), db.photos.clear(), db.appointments.clear()])
-    await db.settings.bulkPut((t.settings ?? []) as never[])
-    await db.sessions.bulkPut((t.sessions ?? []) as never[])
-    await db.life.bulkPut((t.life ?? []) as never[])
-    await db.daily.bulkPut((t.daily ?? []) as never[])
-    await db.checkins.bulkPut((t.checkins ?? []) as never[])
-    await db.tests.bulkPut((t.tests ?? []) as never[])
-    await db.measurements.bulkPut((t.measurements ?? []) as never[])
+  await db.transaction('rw', allTables(), async () => {
+    await Promise.all(allTables().map((x) => x.clear()))
+    for (const name of TABLES) await (db.table(name) as Table<unknown>).bulkPut(t[name] ?? [])
     await db.photos.bulkPut(photos as never[])
-    await db.appointments.bulkPut((t.appointments ?? []) as never[])
   })
 }
 
 export async function resetAll() {
-  await db.transaction('rw', [db.settings, db.sessions, db.life, db.daily, db.checkins, db.tests, db.measurements, db.photos, db.appointments], async () => {
-    await Promise.all([db.settings.clear(), db.sessions.clear(), db.life.clear(), db.daily.clear(), db.checkins.clear(), db.tests.clear(), db.measurements.clear(), db.photos.clear(), db.appointments.clear()])
+  await db.transaction('rw', allTables(), async () => {
+    await Promise.all(allTables().map((x) => x.clear()))
   })
   try {
     localStorage.removeItem('levelup.timer')

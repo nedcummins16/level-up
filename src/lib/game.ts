@@ -27,7 +27,7 @@ import {
   type Unlockable,
 } from '../config/game'
 import { EXERCISES, PROGRAM } from '../config/program'
-import type { Appointment, CheckIn, DailyLog, LifeEvent, Settings, TestResult, WorkoutSession } from '../db/types'
+import type { Appointment, CheckIn, DailyLog, LifeEvent, MealPlan, Settings, TestResult, WorkoutSession } from '../db/types'
 import { avg7, latestWeight, weighIns } from './body'
 import { addDays, mondayOf, rangeDays, type ISODate } from './dates'
 import { allTestDays, getPhase, weekNumber } from './plan'
@@ -39,6 +39,7 @@ import { bestJumpReach, bossTrophies, computeDunk, computePhysique, type BossTro
 import { isStrengthSlot, type WeekPlan } from './schedule'
 import { earnsStrengthXP } from './xp'
 import { preseasonAchievementDates, preseasonXP } from './preseason'
+import { nthPrepDate, preppedInWeek, proteinRunDate } from './kitchen'
 
 export interface GameInput {
   settings: Settings
@@ -50,6 +51,7 @@ export interface GameInput {
   today: ISODate
   planFor: (weekStart: ISODate) => WeekPlan
   appointments?: Appointment[]
+  mealPlans?: MealPlan[]
 }
 
 export interface XpEntry {
@@ -93,7 +95,7 @@ export interface WeekResult {
   xp: number
   prs: PREvent[]
   raid: RaidState
-  quests: { id: string; name: string; done: boolean; progress: string }[]
+  quests: { id: string; name: string; done: boolean; progress: string; xp: number }[]
 }
 
 export interface GameState {
@@ -298,6 +300,7 @@ export function computeGame(fullInput: GameInput): GameState {
     if (d.steps) add(d.date, XP.dailyQuest, 'Steps quest', 'quest')
     if (d.smoothie) add(d.date, XP.dailyQuest, 'Smoothie quest', 'quest')
     if ((d.meals?.length ?? 0) >= FOOD.slots.length) add(d.date, XP.dailyQuest, 'Ate 5 times', 'quest')
+    if (d.lunch && d.date >= PROGRAM.start) add(d.date, XP.lunchQuest, 'Prepped lunch eaten', 'quest')
   }
 
   // --- Check-ins
@@ -354,21 +357,25 @@ export function computeGame(fullInput: GameInput): GameState {
     const weighs = weighIns(daily).filter((x) => inWeek(x.date)).length
     const checkedIn = checkins.some((c) => c.weekStart === w)
 
+    const prepped = preppedInWeek(input.mealPlans ?? [], w)
     const quests = WEEKLY_QUESTS.map((q) => {
+      const base = { id: q.id, name: q.name, xp: 'xp' in q ? q.xp : XP.weeklyQuest }
       switch (q.id) {
         case 'target':
-          return { id: q.id, name: q.name, done: complete, progress: `${doneCount}/${plan.required}` }
+          return { ...base, done: complete, progress: `${doneCount}/${plan.required}` }
         case 'mobility6':
-          return { id: q.id, name: q.name, done: mob >= 6, progress: `${mob}/6` }
+          return { ...base, done: mob >= 6, progress: `${mob}/6` }
         case 'steps5':
-          return { id: q.id, name: q.name, done: steps >= 5, progress: `${steps}/5` }
+          return { ...base, done: steps >= 5, progress: `${steps}/5` }
         case 'weigh5':
-          return { id: q.id, name: q.name, done: weighs >= 5, progress: `${weighs}/5` }
+          return { ...base, done: weighs >= 5, progress: `${weighs}/5` }
         case 'checkin':
-          return { id: q.id, name: q.name, done: checkedIn, progress: checkedIn ? '✓' : '0/1' }
+          return { ...base, done: checkedIn, progress: checkedIn ? '✓' : '0/1' }
+        case 'mealPrep':
+          return { ...base, done: prepped, progress: prepped ? '✓' : '0/1' }
       }
     })
-    if (plan.planned > 0) for (const q of quests) if (q.done) add(wEnd > today ? today : wEnd, XP.weeklyQuest, `Weekly: ${q.name}`, 'weekly')
+    if (plan.planned > 0) for (const q of quests) if (q.done) add(wEnd > today ? today : wEnd, q.xp, `Weekly: ${q.name}`, 'weekly')
 
     const wPRs = prs.filter((p) => inWeek(p.date))
     const r = raidFor(w, settings.repeats)
@@ -535,6 +542,9 @@ function computeAchievements(input: GameInput, prs: PREvent[], weeks: WeekResult
     beachSurvivor,
     neverTwice,
     dunk: settings.dunk ? today : undefined,
+    chef: nthPrepDate(input.mealPlans ?? [], 4),
+    headChef: nthPrepDate(input.mealPlans ?? [], 10),
+    fuelled: proteinRunDate(daily, 7),
     examSlayer: pre.examSlayer,
     preseasonDone: pre.preseasonDone,
   }

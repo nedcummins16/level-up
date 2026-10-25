@@ -1,6 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie'
 import { PROGRAM } from '../config/program'
-import type { Appointment, CheckIn, DailyLog, LifeEvent, Measurement, Photo, Settings, TestResult, WorkoutSession } from './types'
+import type { Appointment, CheckIn, CustomRecipe, DailyLog, LifeEvent, MealPlan, Measurement, Photo, Settings, TestResult, WorkoutSession } from './types'
 
 // Schema versioning: NEVER edit an existing version's stores. To change the schema,
 // add `db.version(N + 1).stores({...}).upgrade(tx => ...)` below. Dexie migrates the
@@ -15,6 +15,8 @@ export class LevelUpDB extends Dexie {
   measurements!: EntityTable<Measurement, 'id'>
   photos!: EntityTable<Photo, 'id'>
   appointments!: EntityTable<Appointment, 'date'>
+  mealPlans!: EntityTable<MealPlan, 'weekStart'>
+  recipes!: EntityTable<CustomRecipe, 'id'>
 
   constructor(name = 'level-up') {
     super(name)
@@ -31,6 +33,11 @@ export class LevelUpDB extends Dexie {
     // v2: when + where you plan to train each day (set at the Sunday check-in).
     this.version(2).stores({
       appointments: 'date',
+    })
+    // v3: Kitchen (weekly lunch plans + your own recipes).
+    this.version(3).stores({
+      mealPlans: 'weekStart',
+      recipes: '++id',
     })
   }
 }
@@ -80,6 +87,7 @@ export function defaultSettings(): Settings {
     seenPreseasonSummary: false,
     specialTitle: null,
     seenTitles: [],
+    kitchenFavs: [],
   }
 }
 

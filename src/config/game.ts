@@ -11,6 +11,10 @@ export const XP = {
   checkin: 50,
   pr: 150,
   dailyQuest: 10, // protein / steps / smoothie / 5 meals
+  /** Kitchen: prepped lunch eaten (from Week 1). */
+  lunchQuest: 15,
+  /** Kitchen: "Meal Prep Sunday" weekly quest. */
+  mealPrep: 75,
   recovery: 20, // rest day + mobility done
   weeklyQuest: 25,
   raidChest: 200,
@@ -145,6 +149,7 @@ export const DAILY_QUESTS = [
   { id: 'steps', name: 'Steps 8k+', emoji: '👟' },
   { id: 'smoothie', name: 'Smoothie', emoji: '🥤' },
   { id: 'meals', name: 'Eat 5 times (3 meals + 2 snacks)', emoji: '🍽️' },
+  { id: 'lunch', name: 'Prepped lunch eaten', emoji: '🍱' },
 ] as const
 
 export const WEEKLY_QUESTS = [
@@ -153,6 +158,8 @@ export const WEEKLY_QUESTS = [
   { id: 'steps5', name: 'Steps 8k+ on 5 days' },
   { id: 'weigh5', name: 'Weigh in on 5 days' },
   { id: 'checkin', name: 'Sunday check-in' },
+  /** Kitchen: tick off the whole prep checklist this week. */
+  { id: 'mealPrep', name: 'Meal Prep Sunday', xp: XP.mealPrep },
 ] as const
 
 /** Weekly raids rotate by program week. Each opens a bonus chest. */
@@ -187,6 +194,9 @@ export const ACHIEVEMENTS = [
   { id: 'neverTwice', name: 'Never Missed Twice', icon: '🔁', desc: '4 weeks in a row without missing two planned days back to back' },
   { id: 'dunk', name: 'Dunk', icon: '🏀', desc: 'Throw one down! (unlock it yourself)' },
   { id: 'examSlayer', name: 'Exam Slayer', icon: '🎓', desc: 'Defeat all five exam bosses. Unlocks the Exam Slayer title' },
+  { id: 'chef', name: 'Chef', icon: '🍳', desc: 'Meal prep on 4 Sundays (Kitchen prep checklist)' },
+  { id: 'headChef', name: 'Head Chef', icon: '👨‍🍳', desc: 'Meal prep on 10 Sundays' },
+  { id: 'fuelled', name: 'Fuelled', icon: '🔋', desc: 'Protein quest 7 days in a row' },
   { id: 'preseasonDone', name: 'Pre-season Done', icon: '📚', desc: 'Do 4 of the 6 exam pre-season sessions. Unlocks the graduation cap' },
 ] as const
 
@@ -208,22 +218,23 @@ export const FOOD = {
     { id: 'snack1', name: 'Snack', emoji: '🍌' },
     { id: 'snack2', name: 'Snack', emoji: '🥜' },
   ],
+  // All gluten free: anything packaged must be labelled gluten free (see Kitchen → GF safety).
   ideas: [
-    { name: 'Bulk smoothie', kcal: 800, protein: 40, what: '400 ml milk, banana, 50 g oats, 2 tbsp peanut butter, 1 scoop whey' },
-    { name: 'Spag bol + cheese', kcal: 800, protein: 40, what: 'Big bowl of pasta, beef mince sauce, grated cheese' },
+    { name: 'Breakfast smoothie', kcal: 690, protein: 46, what: '400 ml full-cream milk, 1 scoop GF whey, banana, 30 g rice or quinoa flakes, 1 tbsp peanut butter' },
+    { name: 'GF spag bol + cheese', kcal: 800, protein: 40, what: 'Big bowl of gluten-free pasta, beef mince sauce (GF stock), grated cheese' },
     { name: 'Mince & rice bowl', kcal: 750, protein: 40, what: 'Rice, beef mince, frozen veg, drizzle of olive oil' },
-    { name: 'Chicken wraps ×2', kcal: 650, protein: 45, what: 'Wraps, chicken, cheese, avocado, salad' },
-    { name: 'Toasties ×2', kcal: 600, protein: 30, what: 'Ham & cheese toasted sandwiches + a glass of milk' },
-    { name: 'Eggs on toast', kcal: 600, protein: 30, what: '3 eggs, 2 slices toast with butter, avocado' },
-    { name: 'Tuna pasta', kcal: 700, protein: 40, what: 'Pasta, tin of tuna, cheese, sweetcorn, mayo' },
-    { name: 'Yoghurt bowl', kcal: 450, protein: 25, what: 'Greek yoghurt, muesli, honey, berries' },
-    { name: 'Trail mix + milk', kcal: 450, protein: 18, what: 'Big handful nuts & dried fruit + 300 ml milk' },
-    { name: 'PB banana toast', kcal: 400, protein: 14, what: '2 toast, peanut butter, sliced banana' },
+    { name: 'Chicken GF wraps ×2', kcal: 650, protein: 45, what: 'Gluten-free wraps, chicken, cheese, avocado, salad' },
+    { name: 'GF toasties ×2', kcal: 600, protein: 30, what: 'Gluten-free bread, GF ham & cheese, own toaster or toaster bags + a glass of milk' },
+    { name: 'Eggs on GF toast', kcal: 600, protein: 30, what: '3 eggs, 2 slices gluten-free toast with butter, avocado' },
+    { name: 'Tuna GF pasta', kcal: 700, protein: 40, what: 'Gluten-free pasta, tin of plain tuna, cheese, sweetcorn, mayo' },
+    { name: 'Yoghurt bowl', kcal: 450, protein: 25, what: 'Greek yoghurt, puffed rice or GF-labelled muesli, honey, berries' },
+    { name: 'Trail mix + milk', kcal: 450, protein: 18, what: 'Big handful plain nuts & dried fruit + 300 ml milk' },
+    { name: 'PB banana on rice cakes', kcal: 400, protein: 14, what: '3 thick rice cakes, peanut butter, sliced banana' },
   ],
   tips: [
     'Drink milk with meals instead of water: easy 150+ kcal.',
     'Add olive oil, cheese or peanut butter to meals you already eat.',
-    'Eat before bed: yoghurt, milk or a toastie.',
+    'Eat before bed: yoghurt, milk or a GF toastie.',
     'Never skip breakfast: even a smoothie on the way counts.',
     'Struggling to gain? The app tells you after 2 slow weeks: add ~250 kcal (1 snack).',
   ],

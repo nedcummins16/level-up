@@ -1,6 +1,6 @@
 import type { CardioSlot, StrengthSlot } from '../config/types'
 import { db, updateSettings } from '../db/db'
-import type { DailyLog, LifeEvent, LifeType, WorkoutSession } from '../db/types'
+import type { CustomRecipe, DailyLog, LifeEvent, LifeType, MealPlan, WorkoutSession } from '../db/types'
 import { addDays, type ISODate } from '../lib/dates'
 import { makeLifeEvent } from '../lib/life'
 import { applyHandover, isPreseasonSlot } from '../lib/preseason'
@@ -112,4 +112,29 @@ export async function toggleTennis(weekStart: ISODate, on: boolean) {
     else off.add(weekStart)
     return { tennisOff: [...off].sort() }
   })
+}
+
+// ---------------------------------------------------------------------------
+//  Kitchen
+// ---------------------------------------------------------------------------
+
+/** Change a week's meal plan (creates it the first time). */
+export async function patchMealPlan(weekStart: ISODate, patch: (p: MealPlan) => Partial<MealPlan>) {
+  await db.transaction('rw', db.mealPlans, async () => {
+    const cur: MealPlan = (await db.mealPlans.get(weekStart)) ?? { weekStart, lunches: [], shopped: [], prep: [], prepDoneAt: null }
+    await db.mealPlans.put({ ...cur, ...patch(cur), weekStart })
+  })
+}
+
+export async function toggleFavourite(recipeId: string) {
+  await updateSettings((s) => ({ kitchenFavs: s.kitchenFavs.includes(recipeId) ? s.kitchenFavs.filter((x) => x !== recipeId) : [...s.kitchenFavs, recipeId] }))
+}
+
+export async function saveRecipe(r: CustomRecipe) {
+  return db.recipes.put(r)
+}
+
+export async function deleteRecipe(id: number) {
+  await db.recipes.delete(id)
+  await updateSettings((s) => ({ kitchenFavs: s.kitchenFavs.filter((x) => x !== `custom:${id}`) }))
 }
